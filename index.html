@@ -1,0 +1,3333 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">SPACE PRO+ v1.0</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap');
+        @font-face {
+            font-family: 'Prompt';
+            font-style: normal;
+            font-weight: 400;
+            src: url('./fonts/Prompt-Regular.ttf') format('truetype');
+        }
+        
+        @font-face {
+            font-family: 'Prompt';
+            font-style: normal;
+            font-weight: 600;
+            src: url('./fonts/Prompt-SemiBold.ttf') format('truetype');
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Prompt', monospace;
+            /* เหมือนเดิม */
+        }
+        
+         :root {
+            --bg: #080c10;
+            --bg2: #0d1117;
+            --bg3: #161b22;
+            --green: #00e676;
+            --red: #ff5252;
+            --amber: #ffab40;
+            --blue: #40c4ff;
+            --text: #e6edf3;
+            --muted: #8b949e;
+            --border: #21262d;
+            --rsi: #e040fb;
+            --grid: #ffbb00;
+        }
+        /* เต็มจอบังหมดตอนเข้า LIVE */
+        
+        .api-overlay {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            inset: 0;
+            background: rgba(8, 12, 16, 0.7);
+            backdrop-filter: blur(6px);
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .api-overlay.show {
+            display: flex;
+        }
+        
+        .api-modal {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 0 40px rgba(27, 27, 27, 0.15);
+        }
+        
+        .api-modal h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: var(--green);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .api-modal .api-warn {
+            margin: 12px 0;
+        }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px
+        }
+        
+        .wrap {
+            max-width: 1880px;
+            margin: 0 auto;
+            padding: 12px
+        }
+        
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 12px
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text);
+        }
+        
+        .logo svg {
+            color: var(--green);
+            filter: drop-shadow(0 0 8px rgba(0, 230, 118, 0.4));
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #e6edf3 0%, #8b949e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logo-badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 8px;
+            color: #fff;
+            letter-spacing: 0.3px;
+        }
+        
+        .ctrls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+        
+        .btn {
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer
+        }
+        
+        .btn-start {
+            background: var(--green);
+            color: #000
+        }
+        
+        .btn-stop {
+            background: var(--red);
+            color: #fff
+        }
+        
+        .btn-live {
+            background: rgb(0, 122, 63);
+            color: #fff;
+        }
+        
+        .btn-live:hover {
+            background: rgb(0, 138, 71);
+        }
+        
+        .btn-demo {
+            background: var(--amber);
+            color: #000
+        }
+        
+        .btn-reset {
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border)
+        }
+        
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1
+            }
+            50% {
+                opacity: .4
+            }
+        }
+        
+        select,
+        input {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-size: 12px
+        }
+        
+        .mode-switch {
+            display: flex;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden
+        }
+        
+        .mode-btn {
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--muted)
+        }
+        
+        .mode-btn.active {
+            background: var(--amber);
+            color: #000
+        }
+        
+        .mode-btn.live.active {
+            background: var(--green);
+            color: #000
+        }
+        
+        .tf-switch {
+            display: flex;
+            gap: 4px
+        }
+        
+        .tf-btn {
+            padding: 4px 10px;
+            font-size: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg3);
+            color: var(--muted);
+            border-radius: 4px;
+            cursor: pointer
+        }
+        
+        .tf-btn.active {
+            background: var(--blue);
+            color: #000;
+            border-color: var(--blue)
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 320px 1fr 300px;
+            gap: 12px
+        }
+        
+        .panel {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden
+        }
+        
+        .phd {
+            background: var(--bg3);
+            padding: 8px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+        
+        .pbd {
+            padding: 12px
+        }
+        
+        .ind {
+            margin-bottom: 10px
+        }
+        
+        .ind-l {
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase
+        }
+        
+        .ind-v {
+            font-size: 20px;
+            font-weight: 600
+        }
+        
+        .chart {
+            position: relative;
+            height: 320px;
+            width: 100%;
+            padding-bottom: 18px;
+            /* เพิ่มบรรทัดนี้ กันที่ให้ label */
+        }
+        
+        .logs {
+            max-height: 120px;
+            overflow: auto;
+            font-size: 11px;
+            color: var(--muted);
+            /* สีหลักขาวเทา */
+        }
+        /* Scrollbar แนวตั้ง สำหรับ .logs */
+        
+        .logs::-webkit-scrollbar {
+            width: 6px;
+            /* ความกว้าง scrollbar */
+        }
+        
+        .logs::-webkit-scrollbar-track {
+            background: transparent;
+            /* พื้นหลังราง */
+        }
+        
+        .logs::-webkit-scrollbar-thumb {
+            background: #2a3446;
+            /* สีตัวเลื่อน */
+            border-radius: 3px;
+        }
+        
+        .logs::-webkit-scrollbar-thumb:hover {
+            background: #3a4556;
+            /* สีตอนเอาเมาส์ชี้ */
+        }
+        /* Firefox */
+        
+        .logs {
+            scrollbar-width: thin;
+            scrollbar-color: #2a3446 transparent;
+        }
+        
+        .log {
+            padding: 3px 6px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+            overflow-x: auto;
+        }
+        /* Scrollbar แนวนอน สำหรับแต่ละบรรทัด .log */
+        
+        .log::-webkit-scrollbar {
+            height: 4px;
+            /* ความสูง scrollbar แนวนอน */
+        }
+        
+        .log::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .log::-webkit-scrollbar-thumb {
+            background: #2a3446;
+            border-radius: 2px;
+        }
+        
+        .log::-webkit-scrollbar-thumb:hover {
+            background: #3a4556;
+        }
+        
+        .log {
+            scrollbar-width: thin;
+            scrollbar-color: #2a3446 transparent;
+        }
+        
+        .tag-buy {
+            color: var(--green);
+            font-weight: 600
+        }
+        
+        .tag-sell {
+            color: var(--red);
+            font-weight: 600
+        }
+        
+        .tag-err {
+            color: var(--red);
+            font-weight: 600
+        }
+        
+        .tag-info {
+            color: var(--amber);
+            font-weight: 600
+        }
+        
+        .tag-success {
+            color: var(--green);
+            font-weight: 600
+        }
+        /* แถวปกติ ไม่ต้องแก้ */
+        
+        .pos-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        /* เฉพาะแถวสไลด์ ใช้ grid */
+        
+        .pos-row-slider {
+            display: grid !important;
+            grid-template-columns: 120px 1fr 55px;
+            gap: 10px;
+        }
+        
+        .pos-row-slider .pos-k {
+            color: var(--muted);
+            font-size: 11px;
+            white-space: nowrap;
+            text-align: left;
+        }
+        
+        .pos-row-slider input[type="range"] {
+            width: 100%;
+            height: 4px;
+            background: var(--border);
+            outline: none;
+            border-radius: 2px;
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        .pos-row-slider input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--blue);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .pos-row-slider input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            background: var(--blue);
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .pos-row-slider span:last-child {
+            text-align: right;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 11px;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .api-warn {
+            font-size: 10px;
+            color: var(--red);
+            background: #ff525215;
+            border: 1px solid #ff525240;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            line-height: 1.5
+        }
+        
+        .status {
+            padding: 5px 12px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 12px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .status.demo {
+            background: #ffab4020;
+            border-color: #ffab4040;
+            color: var(--amber)
+        }
+        
+        .status.live {
+            background: #00e67620;
+            border-color: #00e67640;
+            color: var(--green);
+            animation: pulse 2s infinite
+        }
+        
+        .status.err {
+            background: #ff525220;
+            border-color: #ff525240;
+            color: var(--red)
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            align-items: center;
+            justify-content: center
+        }
+        
+        .modal.show {
+            display: flex
+        }
+        
+        .modal-ct {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%
+        }
+        
+        .modal-t {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--red);
+            margin-bottom: 12px
+        }
+        
+        .modal-txt {
+            font-size: 12px;
+            color: var(--text);
+            line-height: 1.6;
+            margin-bottom: 16px;
+            white-space: pre-wrap
+        }
+        
+        .modal-btns {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end
+        }
+        
+        .sma-legend {
+            display: flex;
+            gap: 12px;
+            font-size: 10px;
+            align-items: center
+        }
+        
+        .sma-legend span {
+            display: flex;
+            align-items: center;
+            gap: 4px
+        }
+        
+        .sma-legend i {
+            display: inline-block;
+            width: 20px;
+            height: 2px
+        }
+        
+        .stat-big {
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            padding: 8px 0
+        }
+        
+        .stat-big.green {
+            color: var(--green);
+        }
+        
+        .stat-big.red {
+            color: var(--red);
+        }
+        
+        .stat-big.amber {
+            color: var(--amber);
+        }
+        
+        @media(max-width:1100px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+        }
+        
+        .api-toggle {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            padding: 4px 8px;
+            font-size: 10px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--muted);
+            cursor: pointer;
+            display: none
+        }
+        
+        .api-toggle.show {
+            display: block
+        }
+        
+        .api-toggle:hover {
+            color: var(--text);
+            border-color: var(--blue)
+        }
+        
+        .api-box {
+            position: relative
+        }
+        
+        #pStatus {
+            font-weight: 700;
+        }
+        
+        .trend-panel {
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            display: none;
+            margin-top: 12px;
+        }
+        
+        .trend-panel.show {
+            display: block;
+        }
+        
+        .trend-grid {
+            display: grid;
+            grid-template-columns: 50px repeat(7, 1fr);
+            /* เดิม repeat(6, 1fr) */
+            gap: 1px;
+            background: var(--border);
+        }
+        
+        .trend-cell {
+            background: var(--bg3);
+            padding: 6px 2px;
+            text-align: center;
+            font-size: 10px;
+        }
+        
+        .trend-cell.head {
+            background: var(--bg2);
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 9px;
+        }
+        
+        .trend-cell.tf {
+            background: var(--bg2);
+            color: var(--text);
+            font-weight: 600;
+            font-size: 9px;
+        }
+        
+        .trend-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            min-width: 48px;
+            justify-content: center;
+            opacity: 1;
+        }
+        
+        .trend-box.up {
+            background: #00e67620;
+            color: var(--green);
+            border: 1px solid #00e67640;
+        }
+        
+        .trend-box.down {
+            background: #ff525220;
+            color: var(--red);
+            border: 1px solid #ff525240;
+        }
+        
+        .trend-box.flat {
+            background: #ffab4020;
+            color: var(--amber);
+            border: 1px solid #ffab4040;
+        }
+        
+        .trend-box i {
+            display: none;
+            /* ซ่อนจุดไปเลย */
+        }
+        
+        @keyframes tickUp {
+            0% {
+                transform: translateY(8px);
+                opacity: 0;
+                color: var(--green);
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+                color: var(--text);
+            }
+        }
+        
+        @keyframes tickDown {
+            0% {
+                transform: translateY(-8px);
+                opacity: 0;
+                color: var(--red);
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+                color: var(--text);
+            }
+        }
+        
+        #price {
+            transition: color 0.2s ease;
+        }
+        
+        .price-up {
+            animation: tickUp 0.3s ease-out;
+        }
+        
+        .price-down {
+            animation: tickDown 0.3s ease-out;
+        }
+        
+        .trend-box.up-weak {
+            background: #00e67610;
+            color: var(--green);
+            border: 1px dashed #00e67640;
+            opacity: 0.6;
+        }
+        
+        .trend-box.down-weak {
+            background: #ff525210;
+            color: var(--red);
+            border: 1px dashed #ff525240;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="top">
+            <div class="logo">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 13L9 7L13 11L21 3" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+                    <path d="M3 17L9 11L13 15L21 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                        opacity="0.5" />
+                </svg>
+                <div class="logo-text" style="font-weight:700;">
+                    SPACE<span style="background:linear-gradient(135deg,rgb(0, 230, 118),rgb(0, 104, 54));filter: drop-shadow(0 0 10px rgba(0, 230, 118, 0.4));-webkit-background-clip:text;-webkit-text-fill-color:transparent">PRO+</span>
+                    <span style="height:20px;width:1px;background:var(--border);margin:0 2px"></span>
+                    <span style="font-size:11px;color:var(--muted);font-weight:400">v1.0.0 </span>
+                </div>
+                <div class="status demo" id="status">DEMO MODE - ต้องรัน Proxy v1.0 ก่อนใช้ LIVE</div>
+            </div>
+            <div class="ctrls">
+                <div class="mode-switch">
+                    <button class="mode-btn active" id="modeSim">SIMULATE</button>
+                    <button class="mode-btn live" id="modeLive">LIVE</button>
+                </div>
+                <select id="coin">
+                    <option>BTC</option>
+                    <option>ETH</option>
+                    <option>KUB</option>
+                    <option>USDT</option>
+                    <option>XAUT</option>
+                </select>
+                <div class="tf-switch">
+                    <button class="tf-btn" data-tf="1">1m</button>
+                    <button class="tf-btn" data-tf="5">5m</button>
+                    <button class="tf-btn active" data-tf="15">15m</button>
+                    <button class="tf-btn" data-tf="30">30m</button>
+                    <button class="tf-btn" data-tf="60">1h</button>
+                    <button class="tf-btn" data-tf="240">4h</button>
+                    <button class="tf-btn" data-tf="D">1d</button>
+                </div>
+                <button class="btn btn-start" id="btnMain">▶ START</button>
+                <button class="btn btn-reset" id="btnReset">RESET STATS</button>
+                <button class="btn btn-reset" id="btnHardReset">HARD RESET</button>
+                <button class="btn btn-demo" id="btnBacktest">BACKTEST 2Y</button>
+            </div>
+        </div>
+
+        <div class="api-overlay" id="apiOverlay">
+            <div class="api-modal">
+                <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path
+                            d="M12 15V17M6 21H18C19.1046 21 20 20.1046 20 19V13C20 11.8954 19.1046 11 18 11H6C4.89543 11 4 11.8954 4 13V19C4 20.1046 4.89543 21 6 21ZM16 11V7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7V11H16Z"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg> เชื่อมต่อ Bitkub API
+                </h3>
+                <div class="api-warn">⚠️ LIVE ใช้เงินจริง! 1. รัน node proxy.js ก่อน 2. IP Whitelist ต้องเป็น <span id="myIP">กำลังโหลด...</span> 3. ปิด Withdraw 4. เริ่ม 300 บาท</div>
+                <div style="display:flex;gap:8px;margin-bottom:8px">
+                    <input type="text" id="apiKey" placeholder="API Key" style="flex:1">
+                    <input type="password" id="apiSec" placeholder="API Secret" style="flex:1">
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+                    <input type="checkbox" id="chkRisk" checked>
+                    <label for="chkRisk" style="font-size:11px">ยอมรับความเสี่ยง เงินหายไม่โทษใคร</label>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <input type="checkbox" id="chkSave" checked>
+                    <label for="chkSave" style="font-size:11px">จำ API Key</label>
+                    <button class="btn btn-reset" id="btnTestIP" style="padding:6px 12px;font-size:11px">TEST
+                        IP</button>
+                    <div style="flex:1"></div>
+                    <button class="btn btn-live" id="btnConnect">CONNECT</button>
+                </div>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="panel">
+                <div class="phd">Indicators</div>
+                <div class="pbd">
+                    <div class="ind">
+                        <div class="ind-l">RSI(14)</div>
+                        <div class="ind-v" id="rsi">—</div>
+                    </div>
+                    <div class="ind">
+                        <div class="ind-l">Price</div>
+                        <div class="ind-v">
+                            <span id="price">—</span> <span id="priceArrow"></span>
+                        </div>
+                    </div>
+                    <div class="ind">
+                        <div class="ind-l">Signal</div>
+                        <div class="ind-v" id="signal" style="font-size:14px">WAIT</div>
+                    </div>
+                    <div class="ind">
+                        <div class="ind-l">Equity</div>
+                        <div class="ind-v" id="equity">13,000</div>
+                    </div>
+                </div>
+                <div class="phd">Config</div>
+                <div class="pbd">
+                    <div class="pos-row"><span class="pos-k">Auto Trade</span><input type="checkbox" id="chkAuto"><label for="chkAuto" style="font-size:11px;color:var(--text)">ระบบ ซื้อ/ขาย อัตโนมัติ</label></div>
+                    <div class="pos-row"><span class="pos-k">Order Size</span><input type="number" id="size" value="300" min="300" step="100" style="width:100px"><span class="pos-k"> บาท</span></div>
+                    <div class="pos-row pos-row-slider">
+                        <span class="pos-k">RSI Buy ≤</span>
+                        <input id="rsiB" type="range" min="10" max="70" value="30">
+                        <span id="rsiBVal">30</span>
+                    </div>
+                    <div class="pos-row pos-row-slider">
+                        <span class="pos-k">RSI Sell ≥</span>
+                        <input id="rsiS" type="range" min="30" max="90" value="70">
+                        <span id="rsiSVal">70</span>
+                    </div>
+                    <div class="pos-row pos-row-slider">
+                        <span class="pos-k">Stop Loss %</span>
+                        <input id="sl" type="range" min="1" max="10" value="3">
+                        <span id="slVal">3%</span>
+                    </div>
+                    <div class="pos-row pos-row-slider">
+                        <span class="pos-k">Take Profit %</span>
+                        <input id="tp" type="range" min="2" max="20" value="6">
+                        <span id="tpVal">6%</span>
+                    </div>
+                    <div class="pos-row pos-row-slider">
+                        <span class="pos-k">กำไรขั้นต่ำ %</span>
+                        <input id="minPf" type="range" min="0.5" max="5" step="0.1" value="1">
+                        <span id="minPfVal">1.0%</span>
+                    </div>
+                    <div class="pos-row"><span class="pos-k">SMA</span><input type="checkbox" id="chkSMA" checked><label for="chkSMA" style="font-size:11px">แสดง 20/50</label></div>
+                    <div class="pos-row"><span class="pos-k">Trailing SL</span><input type="checkbox" id="chkTSL" checked><label for="chkTSL" style="font-size:11px">เปิดใช้ 1.5%</label></div>
+                    <div class="pos-row"><span class="pos-k">DCA ถัว</span><input type="checkbox" id="chkDCA" checked><label for="chkDCA" style="font-size:11px">ลง 3% ซื้อเพิ่ม</label></div>
+                    <div class="pos-row" id="dcaModeRow"><span class="pos-k">DCA Mode</span>
+                        <select id="dcaMode" style="width:150px">
+                            <option value="percent">50% ทุกไม้</option>
+                            <option value="allin">All-in ไม้ 2</option>
+                            <option value="martingale">ทบไม้ x2</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+            <div class="panel">
+                <div class="phd">
+                    <span>Chart — <span id="pair">DEMO_BTC</span></span>
+                    <span id="lastUpdate" style="font-size:10px;color:var(--muted)">—</span>
+                </div>
+                <div class="pbd">
+                    <div class="sma-legend" id="smaLegend" style="margin-bottom:8px">
+                        <span><i style="background:#ffab40"></i>SMA20</span>
+                        <span><i style="background:#40c4ff"></i>SMA50</span>
+                        <span><i style="background: var(--grid)"></i>GRID</span>
+                        <span><i style="background: var(--rsi)"></i>RSI</span>
+                        <span style="margin-left:auto;font-size:10px;display:flex;align-items:center;gap:4px">
+                            <input type="checkbox" id="chkTrend" checked>
+                            <label for="chkTrend" style="color:var(--muted);cursor:pointer">Trend</label>
+                            <button class="btn btn-reset" id="btnRefreshTrend" style="padding:2px 6px;font-size:9px" title="รีเฟรชเทรนด์">↻</button>
+                        </span>
+                    </div>
+                    <div class="chart"><canvas id="chart"></canvas></div>
+                    <div class="chart" style="height:50px;margin-top:8px"><canvas id="volChart"></canvas></div>
+                    <div class="chart" style="height:80px;margin-top:8px"><canvas id="rsiChart"></canvas></div>
+                    <div class="trend-panel" id="trendPanel" style="margin-bottom:8px;display:block">
+                        <div class="trend-grid" id="trendGrid">
+                            <div class="trend-cell head">TF</div>
+                            <div class="trend-cell tf">1M</div>
+                            <div class="trend-cell tf">5M</div>
+                            <div class="trend-cell tf">15M</div>
+                            <div class="trend-cell tf">30M</div>
+                            <div class="trend-cell tf">1H</div>
+                            <div class="trend-cell tf">4H</div>
+                            <div class="trend-cell tf">1D</div>
+                            <div class="trend-cell head">Trend</div>
+                            <div class="trend-cell" id="trend-1">—</div>
+                            <div class="trend-cell" id="trend-5">—</div>
+                            <div class="trend-cell" id="trend-15">—</div>
+                            <div class="trend-cell" id="trend-30">—</div>
+                            <div class="trend-cell" id="trend-60">—</div>
+                            <div class="trend-cell" id="trend-240">—</div>
+                            <div class="trend-cell" id="trend-D">—</div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="phd">
+                    <span>Logs - <span id="logMode">SIMULATE</span></span>
+                    <div style="display:flex;gap:6px">
+                        <button class="btn btn-reset" id="btnClearLogs" style="padding:2px 8px;font-size:10px">CLEAR</button>
+                        <button class="btn btn-reset" id="btnExportLogs" style="padding:2px 8px;font-size:10px">EXPORT</button>
+                    </div>
+                </div>
+                <div class="pbd">
+                    <div class="logs" id="logs">
+                        <div style="color:var(--muted);text-align:center;padding:20px">กด START เพื่อเริ่ม</div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="phd">Position</div>
+                <div class="pbd">
+                    <div class="pos-row"><span class="pos-k">Status</span><span id="pStatus">FLAT</span></div>
+                    <div class="pos-row"><span class="pos-k">Cash</span><span id="pCash">13,000</span></div>
+                    <div class="pos-row"><span class="pos-k">Holdings</span><span id="pHold">0.000000</span></div>
+                    <div class="pos-row"><span class="pos-k">Entry</span><span id="pEntry">—</span></div>
+                    <div class="pos-row"><span class="pos-k">Dust/เศษ</span><span id="pDust" style="color:var(--amber)">0.00000000</span></div>
+                    <div class="pos-row"><span class="pos-k">P&L</span><span id="pPnl">—</span></div>
+                    <div class="pos-row"><span class="pos-k">Capital Req</span><span id="pCapReq">—</span></div>
+                    <div class="pos-row"><span class="pos-k">Grid Level</span><span id="pGridLevel">0 / 12</span></div>
+                    <div class="pos-row"><span class="pos-k">Next Grid</span><span id="pNextGrid">—</span></div>
+                    <div class="pos-row"><span class="pos-k">Total Lots</span><span id="pTotalLots">0</span></div>
+                    <div class="pos-row"><span class="pos-k">Break Even</span><span id="pBE">—</span></div>
+                </div>
+                <div class="phd">Stats <span id="statMode">SIMULATE</span></div>
+                <div class="pbd">
+                    <div class="stat-big amber" id="sWRBig">—</div>
+                    <div style="text-align:center;font-size:10px;color:var(--muted);margin-bottom:8px">WIN RATE</div>
+                    <div class="pos-row"><span class="pos-k">Trades</span><span id="sTrades">0</span></div>
+                    <div class="pos-row"><span class="pos-k">Win/Loss</span><span id="sWL">0/0</span></div>
+                    <div class="pos-row"><span class="pos-k">Profit Factor</span><span id="sPF">—</span></div>
+                    <div class="pos-row"><span class="pos-k">Total P&L</span><span id="sPnl">0</span></div>
+                    <div class="pos-row"><span class="pos-k">Total Win</span><span id="sWin">0</span></div>
+                    <div class="pos-row"><span class="pos-k">Total Loss</span><span id="sLoss">0</span></div>
+                    <div class="pos-row"><span class="pos-k">Max Drawdown</span><span id="sMaxDD" style="color:var(--red)">0.00%</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal" id="modal">
+            <div class="modal-ct">
+                <div class="modal-t">⚠️ ยืนยันออเดอร์เงินจริง</div>
+                <div class="modal-txt" id="modalTxt"></div>
+                <div class="modal-btns">
+                    <button class="btn btn-reset" id="modalCancel">ยกเลิก</button>
+                    <button class="btn btn-live" id="modalOk">ยืนยันส่งออเดอร์</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            const DEBUG = true;
+            // แก้ 1: เพิ่ม bitkubErrorMap
+            const bitkubErrorMap = {
+                1: 'Invalid JSON',
+                2: 'Missing param',
+                3: 'Invalid param',
+                4: 'Invalid signature',
+                5: 'IP not allowed',
+                10: 'Invalid API key',
+                11: 'API pending',
+                19: 'Invalid amount',
+                30: 'Bad nonce',
+                55: 'Wallet disabled',
+                56: 'Insufficient balance'
+            };
+
+            // แยก Stats ตามโหมด
+            const STATS = {
+                SIM: {
+                    wins: 0,
+                    loss: 0,
+                    totalWin: 0,
+                    totalLoss: 0,
+                    logs: [],
+                    cash: 13000, // แก้จาก 1e6
+                    initEquity: 13000, // แก้จาก 1e6
+                    maxEquity: 13000, // แก้จาก 1e6
+                    maxDrawdown: 0
+                },
+                LIVE: {
+                    wins: 0,
+                    loss: 0,
+                    totalWin: 0,
+                    totalLoss: 0,
+                    logs: [],
+                    cash: 0,
+                    initEquity: 0,
+                    maxEquity: 0,
+                    maxDrawdown: 0
+                }
+            };
+            // แก้ 2: เพิ่ม proxy เข้าไปใน S
+            const S = {
+                active: false,
+                mode: 'SIM',
+                df: [],
+                timer: null,
+                size: 300,
+
+                rsiB: 30,
+                rsiS: 70,
+                slP: 3,
+                tpP: 6,
+                apiK: '',
+                apiS: '',
+                connected: false,
+                myIP: '',
+                tf: '15',
+                showSMA: true,
+                proxy: 'http://localhost:3001',
+                useTSL: true,
+
+                // แก้: 3% กันหลุดง่าย
+                tslP: 3,
+                tslHigh: 0,
+                useDCA: true,
+                dcaStep: 3,
+                dcaMode: 'percent',
+                // แก้: 2 = รวม 3 ไม้ 0%, -3%, -6%
+                dcaMax: 2,
+                cooldown: 0,
+                minAmt: {
+                    BTC: 0.0001,
+                    ETH: 0.001,
+                    KUB: 0.1,
+                    USDT: 1,
+                    XAUT: 0.01
+                },
+                fee: 0.0025,
+                minProfit: 0.010,
+                autoTrade: false,
+                lastBuyTime: 0,
+                dustMap: {},
+                openOrders: [],
+                gridLevels: 12,
+                gridDistance: 1.0,
+                lotTable: [],
+                nextGridPrice: 0,
+                breakEven: 0,
+                capitalReq: 0,
+                totalLots: 0,
+                lastTSLLog: 0, // เก็บเวลา Log TSL ล่าสุด
+                lastDCALog: 0, // เก็บเวลา Log DCA ติด Cooldown ล่าสุด  
+                lastTPLog: 0, // เก็บเวลา Log TP ไม่ถึง
+                lastRSILog: 0, // เก็บเวลา Log RSI ไม่ถึง
+            };
+
+            const $ = id => document.getElementById(id);
+            const safe = (id, val) => {
+                const el = $(id);
+                if (el) el.textContent = val
+            };
+            const safeHTML = (id, val) => {
+                const el = $(id);
+                if (el) el.innerHTML = val
+            };
+            const safeClass = (id, val) => {
+                const el = $(id);
+                if (el) el.className = val
+            };
+            const safeStyle = (id, prop, val) => {
+                const el = $(id);
+                if (el) el.style[prop] = val
+            };
+            const fmt = n => n == null || isNaN(n) ? '—' : n.toLocaleString('th-TH', {
+                maximumFractionDigits: 2
+            });
+            let lastPrice = null;
+            let rollTimer = null;
+
+            function rollNumber(el, targetPrice, duration = 400, onComplete = null) {
+                if (rollTimer) clearInterval(rollTimer);
+                const startTime = Date.now();
+                const decimals = targetPrice.toString().includes('.') ? 2 : 0;
+
+                rollTimer = setInterval(() => {
+                    const elapsed = Date.now() - startTime;
+                    if (elapsed >= duration) {
+                        clearInterval(rollTimer);
+                        el.textContent = fmt(targetPrice);
+                        if (onComplete) onComplete(); // เรียก callback กลับสีขาว
+                        return;
+                    }
+                    const range = targetPrice * 0.005;
+                    const randomPrice = targetPrice + (Math.random() - 0.5) * range;
+                    el.textContent = fmt(Number(randomPrice.toFixed(decimals)));
+                }, 30);
+            }
+            const updateTitle = (price, coin) => {
+                if (price == null || isNaN(price)) return;
+
+                let arrow = '';
+                let arrowColor = 'var(--text)'; // เปลี่ยน default เป็นสีขาว
+
+                if (lastPrice !== null) {
+                    if (price > lastPrice) {
+                        arrow = '▲ ';
+                        arrowColor = 'var(--green)';
+                    } else if (price < lastPrice) {
+                        arrow = '▼ ';
+                        arrowColor = 'var(--red)';
+                    } else {
+                        arrow = '';
+                        arrowColor = 'var(--amber)';
+                    }
+                }
+
+                document.title = `${arrow}${fmt(price)} ${coin}/THB | SPACE PRO+ v1.0`;
+
+                const arrowEl = $('priceArrow');
+                if (arrowEl) {
+                    arrowEl.textContent = arrow;
+                    arrowEl.style.color = arrowColor;
+                    arrowEl.style.fontWeight = '700';
+                }
+
+                const priceEl = $('price');
+                if (priceEl) {
+                    priceEl.style.fontWeight = '600';
+
+                    if (lastPrice !== null && Math.abs(price - lastPrice) > 0.01) {
+                        priceEl.style.color = arrowColor; // ใส่สีตอนวิ่ง
+                        rollNumber(priceEl, price, 350, () => {
+                            // callback หลังวิ่งเสร็จ กลับเป็นสีขาว
+                            priceEl.style.color = 'var(--text)';
+                        });
+                    } else {
+                        priceEl.style.color = 'var(--text)'; // ปกติสีขาว
+                        priceEl.textContent = fmt(price);
+                    }
+                }
+
+                lastPrice = price;
+            };
+            const CS = () => STATS[S.mode]; // Current Stats ตามโหมด
+            function calcCapitalReq() {
+                const fibo = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144];
+                let capital = S.size;
+
+                for (let i = 1; i < S.gridLevels; i++) {
+                    let nextSize = 0;
+                    switch (S.dcaMode) {
+                        case 'percent':
+                            nextSize = S.size * 0.5;
+                            break;
+                        case 'allin':
+                            nextSize = S.size * 0.5;
+                            break;
+                        case 'martingale':
+                            nextSize = S.size * Math.pow(2, i);
+                            break;
+                        case 'fibonacci':
+                            nextSize = S.size * fibo[Math.min(i, fibo.length - 1)];
+                            break;
+                        default:
+                            nextSize = S.size * 0.5;
+                    }
+                    capital += nextSize;
+                }
+
+                S.capitalReq = capital * (1 + S.fee);
+                safe('pCapReq', fmt(S.capitalReq));
+
+                // เช็คเงินพอไหม อัพเดทปุ่ม Start
+                const btn = $('btnMain');
+                const st = CS();
+                if (!S.active && st.cash < S.capitalReq) {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.4';
+                    btn.style.cursor = 'not-allowed';
+                    btn.title = `เงินไม่พอ ต้องใช้ ${fmt(S.capitalReq)} THB`;
+                } else {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.cursor = 'pointer';
+                    btn.title = '';
+                }
+            }
+
+            function calcBreakEven() {
+                let totalCost = 0;
+                let totalAmt = 0;
+                S.openOrders.forEach(o => {
+                    totalCost += (o.entry || 0) * (o.amt || 0);
+                    totalAmt += (o.amt || 0);
+                });
+                S.breakEven = totalAmt > 0 ? totalCost / totalAmt : 0;
+                S.totalLots = totalAmt || 0; // กัน undefined
+
+                // อัพเดท UI แบบ ZAB - ใส่ || 0 กัน null
+                safe('pEntry', S.breakEven ? fmt(S.breakEven) : '—');
+                safe('pHold', (S.totalLots || 0).toFixed(6));
+                safe('pGridLevel', `${S.openOrders.length} / ${S.gridLevels}`);
+                safe('pNextGrid', S.nextGridPrice ? fmt(S.nextGridPrice) : '—');
+                safe('pTotalLots', (S.totalLots || 0).toFixed(6));
+                safe('pBE', S.breakEven ? fmt(S.breakEven) : '—');
+            }
+            // โหลด/บันทึก State
+            function loadState() {
+                const savedMode = localStorage.getItem('ea_mode') || 'LIVE'; // เปลี่ยนจาก 'SIM' เป็น 'LIVE'
+                const savedKey = localStorage.getItem('ea_apiKey');
+                const savedSec = localStorage.getItem('ea_apiSec');
+                const savedStats = localStorage.getItem('ea_stats');
+                const savedAuto = localStorage.getItem('ea_autoTrade') === 'true';
+                const savedLastBuy = parseInt(localStorage.getItem('ea_lastBuyTime') || '0');
+                const savedDust = localStorage.getItem('ea_dustMap');
+                S.lastBuyTime = savedLastBuy;
+                S.autoTrade = savedAuto;
+                $('chkAuto').checked = savedAuto;
+                if (savedStats) Object.assign(STATS, JSON.parse(savedStats));
+                if (savedKey) {
+                    $('apiKey').value = savedKey;
+                    S.apiK = savedKey;
+                }
+                if (savedSec) {
+                    $('apiSec').value = savedSec;
+                    S.apiS = savedSec;
+                }
+                if (savedDust) S.dustMap = JSON.parse(savedDust);
+                // ตั้ง LIVE เป็นค่าเริ่มต้น
+                S.mode = savedMode;
+
+                // ถ้ายังไม่ connected ให้เด้ง overlay ทันที
+                if (!S.connected || !S.apiK || !S.apiS) {
+                    $('apiOverlay').classList.add('show');
+                    getMyIP();
+                }
+            }
+
+            function saveState() {
+                localStorage.setItem('ea_mode', S.mode);
+                localStorage.setItem('ea_stats', JSON.stringify(STATS));
+                localStorage.setItem('ea_autoTrade', S.autoTrade);
+                localStorage.setItem('ea_lastBuyTime', S.lastBuyTime);
+                localStorage.setItem('ea_dustMap', JSON.stringify(S.dustMap));
+                if ($('chkSave').checked) {
+                    localStorage.setItem('ea_apiKey', S.apiK);
+                    localStorage.setItem('ea_apiSec', S.apiS);
+                } else {
+                    localStorage.removeItem('ea_apiKey');
+                    localStorage.removeItem('ea_apiSec');
+                }
+            }
+
+            async function genDemo() {
+                const coin = $('coin').value;
+                let basePrice = 2432000;
+
+                try {
+                    const res = Math.floor(S.tf === 'D' ? 86400 : S.tf * 60);
+                    const to = Math.floor(Date.now() / 1e3);
+                    const from = to - res * 2;
+                    const d = await bitkub(`/tradingview/history?symbol=${coin}_THB&resolution=${S.tf}&from=${from}&to=${to}`, {}, false, true);
+
+                    if (d.s === 'ok' && d.c.length > 0) {
+                        basePrice = +d.c[d.c.length - 1];
+                        log('SUCCESS', basePrice, 0, `SIM ${coin} ใช้ราคาล่าสุด: ${fmt(basePrice)}`);
+                    } else throw 'no data';
+                } catch (e) {
+                    const fallback = {
+                        'BTC': 2432000,
+                        'ETH': 85000,
+                        'KUB': 65,
+                        'USDT': 36,
+                        'XAUT': 152370 // อัพเดท fallback XAUT ตามที่คุณบอก
+                    };
+                    basePrice = fallback[coin] || 2432000;
+                    log('WARN', basePrice, 0, `ใช้ราคา fallback ${coin}: ${fmt(basePrice)}`);
+                }
+
+                const d = [];
+                let p = basePrice;
+                for (let i = 250; i > 0; i--) {
+                    const ch = (Math.random() - 0.49) * 0.015 * p;
+                    p += ch;
+                    const h = p * (1 + Math.random() * 0.008),
+                        l = p * (1 - Math.random() * 0.008),
+                        o = p + (Math.random() - 0.5) * 0.004 * p,
+                        v = Math.random() * 10;
+                    d.push({
+                        t: new Date(Date.now() - i * 9e5),
+                        c: p,
+                        h,
+                        l,
+                        o,
+                        v
+                    })
+                }
+                return d
+            }
+            async function fetchBacktestData(symbol, resolution, years = 2) {
+                const tfSec = {
+                    '1': 60,
+                    '5': 300,
+                    '15': 900,
+                    '60': 3600,
+                    '240': 14400,
+                    'D': 86400
+                }[resolution];
+                const totalSec = years * 365 * 24 * 60 * 60;
+                const totalBars = Math.floor(totalSec / tfSec);
+                const chunkSize = 1000;
+                const totalRounds = Math.ceil(totalBars / chunkSize);
+                let allBars = [];
+                let fetchedBars = 0;
+
+                log('INFO', 0, 0, `เริ่มดึงข้อมูล ${symbol} ${resolution} ย้อนหลัง ${years} ปี ~${totalBars} แท่ง`);
+
+                for (let i = 0; i < totalRounds; i++) {
+                    const to = Math.floor(Date.now() / 1e3) - i * chunkSize * tfSec;
+                    const from = to - chunkSize * tfSec;
+                    try {
+                        const d = await bitkub(`/tradingview/history?symbol=${symbol}_THB&resolution=${resolution}&from=${from}&to=${to}`, {}, false, true);
+
+                        if (d.s === 'ok' && d.c.length > 0) {
+                            const bars = d.t.map((_, idx) => ({
+                                t: new Date(d.t[idx] * 1e3),
+                                o: +d.o[idx],
+                                h: +d.h[idx],
+                                l: +d.l[idx],
+                                c: +d.c[idx],
+                                v: +d.v[idx]
+                            }));
+                            allBars = bars.concat(allBars);
+                            fetchedBars += bars.length;
+
+                            // Log ทุก 10 รอบ หรือรอบสุดท้าย กันสแปม
+                            if (i % 10 === 0 || i === totalRounds - 1 || fetchedBars >= totalBars) {
+                                log('INFO', 0, 0, `ดึงรอบ ${i + 1}/${totalRounds}: +${bars.length} แท่ง | รวม ${fetchedBars}/${totalBars}`);
+                            }
+
+                            // ได้ครบแล้วหยุดเลย ไม่ต้องยิงต่อให้ครบ totalRounds
+                            if (fetchedBars >= totalBars) {
+                                log('SUCCESS', 0, 0, `ได้ข้อมูลครบ ${fetchedBars} แท่งแล้ว หยุดดึง`);
+                                break;
+                            }
+
+                            await new Promise(r => setTimeout(r, 500)); // กัน Rate limit
+                        } else {
+                            // s = 'no_data' คือหมดแล้วจริงๆ
+                            log('INFO', 0, 0, `Bitkub บอกไม่มีข้อมูลเพิ่มแล้ว หยุดที่รอบ ${i + 1}`);
+                            break;
+                        }
+                    } catch (e) {
+                        log('ERROR', 0, 0, `ดึงข้อมูลรอบ ${i + 1} พัง: ${e.message}`);
+                        break;
+                    }
+                }
+                log('SUCCESS', 0, 0, `ดึงข้อมูลสำเร็จรวม ${allBars.length} แท่ง`);
+                return allBars;
+            }
+            async function runBacktest() {
+                if (S.active) {
+                    alert('กรุณา Stop ก่อน');
+                    return;
+                }
+                const coin = $('coin').value;
+                const tf = S.tf;
+
+                // 1. ดึงข้อมูล 2 ปี
+                const bars = await fetchBacktestData(coin, tf, 2);
+                if (bars.length < 100) {
+                    alert('ข้อมูลไม่พอ');
+                    return;
+                }
+
+                // 2. Reset Stats
+                const bt = {
+                    wins: 0,
+                    loss: 0,
+                    totalWin: 0,
+                    totalLoss: 0,
+                    cash: 1e6,
+                    hold: 0,
+                    entry: 0,
+                    sl: 0,
+                    tp: 0,
+                    dcaCount: 0,
+                    equity: []
+                };
+                let lastBuyTime = 0;
+                const minAmt = S.minAmt[coin] || 0.0001; // เพิ่มบรรทัดนี้
+
+                // 3. วนลูปทีละแท่ง
+                for (let i = 20; i < bars.length; i++) { // เริ่มที่แท่ง 20 ให้มีข้อมูลพอคำนวณ RSI
+                    const slice = bars.slice(0, i + 1);
+                    const p = slice[i].c;
+                    const rsiArr = calcRSI(slice.map(x => x.c));
+                    const rsi = rsiArr[rsiArr.length - 1];
+                    const minTHB = minAmt * p; // เพิ่มบรรทัดนี้
+
+                    // Logic เดียวกับ แต่ใช้ bt แทน S
+                    if (bt.hold > 0) {
+                        const profitPct = (p - bt.entry) / bt.entry;
+                        const afterFee = profitPct - (S.fee * 2);
+
+                        // Trailing SL
+                        if (S.useTSL && p > bt.entry && afterFee >= S.minProfit) {
+                            const newSL = p * (1 - S.tslP / 100);
+                            if (newSL > bt.sl) bt.sl = newSL;
+                        }
+
+                        // SL
+                        if (p <= bt.sl) {
+                            const pnl = (p - bt.entry) * bt.hold - (bt.entry * bt.hold * S.fee) - (p * bt.hold * S.fee);
+                            bt.cash += bt.hold * p * (1 - S.fee);
+                            pnl > 0 ? (bt.wins++, bt.totalWin += pnl) : (bt.loss++, bt.totalLoss += Math.abs(pnl));
+                            bt.hold = 0;
+                            bt.entry = 0;
+                            bt.sl = 0;
+                            bt.tp = 0;
+                            bt.dcaCount = 0;
+                        }
+                        // TP
+                        else if (p >= bt.tp && afterFee > 0) {
+                            const pnl = (p - bt.entry) * bt.hold - (bt.entry * bt.hold * S.fee) - (p * bt.hold * S.fee);
+                            bt.cash += bt.hold * p * (1 - S.fee);
+                            bt.wins++;
+                            bt.totalWin += pnl;
+                            bt.hold = 0;
+                            bt.entry = 0;
+                            bt.sl = 0;
+                            bt.tp = 0;
+                            bt.dcaCount = 0;
+                        }
+                        // RSI Sell
+                        else if (rsi >= S.rsiS && afterFee >= S.minProfit) {
+                            const pnl = (p - bt.entry) * bt.hold - (bt.entry * bt.hold * S.fee) - (p * bt.hold * S.fee);
+                            bt.cash += bt.hold * p * (1 - S.fee);
+                            bt.wins++;
+                            bt.totalWin += pnl;
+                            bt.hold = 0;
+                            bt.entry = 0;
+                            bt.sl = 0;
+                            bt.tp = 0;
+                            bt.dcaCount = 0;
+                        }
+                    }
+
+                    // DCA - เพิ่มเช็คเงินขั้นต่ำ
+                    if (S.useDCA && bt.hold > 0 && bt.dcaCount < S.dcaMax) {
+                        const dcaPrice = bt.entry * (1 - S.dcaStep / 100 * (bt.dcaCount + 1));
+                        if (p <= dcaPrice && rsi <= S.rsiB && Date.now() - lastBuyTime > 5 * 60 * 1000) {
+
+                            // เช็คเงินพอก่อน DCA
+                            if (bt.cash < minTHB * 1.01) continue;
+
+                            const orderValue = Math.min(S.size * 0.5, bt.cash * 0.98);
+                            if (orderValue < minTHB) continue; // เงินไม่พอขั้นต่ำ ข้าม
+
+                            const amt = orderValue / p;
+                            if (amt < minAmt) continue; // ได้เหรียญไม่ถึงขั้นต่ำ ข้าม
+
+                            bt.cash -= orderValue * (1 + S.fee);
+                            const totalAmt = bt.hold + amt;
+                            bt.entry = ((bt.entry * bt.hold) + (p * amt)) / totalAmt;
+                            bt.hold = totalAmt;
+                            bt.tp = bt.entry * (1 + S.tpP / 100);
+                            bt.sl = bt.entry * (1 - S.slP / 100);
+                            bt.dcaCount++;
+                            lastBuyTime = Date.now();
+                        }
+                    }
+
+                    // Buy ไม้แรก - เพิ่มเช็คเงินขั้นต่ำ
+                    if (rsi <= S.rsiB && bt.hold === 0) {
+
+                        // เช็คเงินพอก่อนซื้อไม้แรก
+                        if (bt.cash < minTHB * 1.01) continue;
+
+                        const orderValue = Math.min(S.size, bt.cash * 0.98);
+                        if (orderValue < minTHB) continue; // เงินไม่พอขั้นต่ำ ข้าม
+
+                        const amt = orderValue / p;
+                        if (amt < minAmt) continue; // ได้เหรียญไม่ถึงขั้นต่ำ ข้าม
+
+                        bt.cash -= orderValue * (1 + S.fee);
+                        bt.hold = amt;
+                        bt.entry = p;
+                        bt.tp = p * (1 + S.tpP / 100);
+                        bt.sl = p * (1 - S.slP / 100);
+                        bt.dcaCount = 1;
+                        lastBuyTime = Date.now();
+                    }
+
+                    bt.equity.push(bt.cash + bt.hold * p);
+                }
+
+                // 4. สรุปผล
+                const totalTrades = bt.wins + bt.loss;
+                const wr = totalTrades > 0 ? (bt.wins / totalTrades * 100) : 0;
+                const finalEquity = bt.cash + bt.hold * bars[bars.length - 1].c;
+                const totalPnL = finalEquity - 1e6;
+                const pf = bt.totalLoss > 0 ? (bt.totalWin / bt.totalLoss) : '∞';
+
+                log('SUCCESS', 0, 0, `=== BACKTEST 2 ปีเสร็จ ===`);
+                log('INFO', 0, 0, `Trades: ${totalTrades} | Win: ${bt.wins} | Loss: ${bt.loss}`);
+                log('INFO', 0, 0, `WinRate: ${wr.toFixed(1)}% | PF: ${typeof pf === 'number' ? pf.toFixed(2) : pf}`);
+                log('INFO', 0, 0, `Final Equity: ${fmt(finalEquity)} | Total P&L: ${fmt(totalPnL)}`);
+                log('INFO', 0, 0, `Total Win: ${fmt(bt.totalWin)} | Total Loss: ${fmt(bt.totalLoss)}`);
+
+                // วาดกราฟ Equity
+                console.table(bt.equity.slice(-10)); // ดู 10 วันสุดท้าย
+            }
+
+            function calcRSI(c, p = 14) {
+                if (c.length < p + 1) return c.map(() => 50);
+                const r = new Array(p).fill(50);
+                let g = 0,
+                    l = 0;
+                for (let i = 1; i <= p; i++) {
+                    const d = c[i] - c[i - 1];
+                    if (d > 0) g += d;
+                    else l -= d
+                }
+                let ag = g / p,
+                    al = l / p;
+                r.push(al === 0 ? 100 : 100 - 100 / (1 + ag / al));
+                for (let i = p + 1; i < c.length; i++) {
+                    const d = c[i] - c[i - 1];
+                    const G = d > 0 ? d : 0,
+                        L = d < 0 ? -d : 0;
+                    ag = (ag * (p - 1) + G) / p;
+                    al = (al * (p - 1) + L) / p;
+                    r.push(al === 0 ? 100 : 100 - 100 / (1 + ag / al))
+                }
+                return r
+            }
+
+            function calcSMA(c, p) {
+                if (c.length < p) return c.map(() => null);
+                const r = [];
+                for (let i = 0; i < c.length; i++) {
+                    if (i < p - 1) {
+                        r.push(null);
+                        continue
+                    }
+                    let s = 0;
+                    for (let j = 0; j < p; j++) s += c[i - j];
+                    r.push(s / p)
+                }
+                return r
+            }
+
+            async function getMyIP() {
+                try {
+                    const r = await fetch('https://api.ipify.org?format=json');
+                    const j = await r.json();
+                    S.myIP = j.ip;
+                    $('myIP').textContent = j.ip;
+                    return j.ip
+                } catch (e) {
+                    $('myIP').textContent = 'เช็คไม่ได้';
+                    return 'unknown'
+                }
+            }
+
+            // แก้ 3: ใช้ S.proxy แทน hardcode
+            async function api(ep, p) {
+                console.log('[API_CALL]', ep, p);
+                if (ep === '/simulate') {
+                    const s = CS();
+                    if (!p) return s;
+                    const v = p.amt * p.rat;
+                    if (p.typ === 'limit') {
+                        if (s.hold === 0) {
+                            s.cash -= v;
+                            s.hold = p.amt;
+                            s.entry = p.rat;
+                            s.trades++;
+                        } else {
+                            s.cash += v;
+                            s.hold = 0;
+                            s.entry = 0;
+                            s.trades++;
+                        }
+                    }
+                    S.live = false;
+                    saveState();
+                    return {
+                        error: 0,
+                        result: s
+                    };
+                }
+                try {
+                    const r = await fetch(`${S.proxy}/bitkub`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            path: ep,
+                            apiKey: S.apiK,
+                            apiSec: S.apiS,
+                            payload: p,
+                            isPublic: ep.startsWith('/tradingview')
+                        })
+                    });
+                    console.log('[API_RAW]', r.status, r.statusText);
+                    const j = await r.json();
+                    console.log('[API_RES]', j);
+                    return j;
+                } catch (e) {
+                    console.error('[API_ERR]', e);
+                    return {
+                        error: 999,
+                        message: e.message
+                    }
+                }
+            }
+
+            async function bitkub(p, b = {}, priv = false, isPublic = false) {
+                if (S.mode === 'LIVE' || priv || isPublic) {
+                    const r = await fetch(`${S.proxy}/bitkub`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            path: p,
+                            apiKey: S.apiK,
+                            apiSec: S.apiS,
+                            payload: b,
+                            isPublic: isPublic
+                        })
+                    });
+                    const j = await r.json();
+                    if (!isPublic && j.error !== 0) {
+                        const errs = {
+                            1: 'Invalid JSON',
+                            2: 'Missing param',
+                            3: 'Invalid param',
+                            4: 'Invalid signature - Secret ผิด',
+                            5: `IP not allowed - IP คุณคือ ${S.myIP}`,
+                            10: 'Invalid API key',
+                            11: 'API pending - รอ Bitkub อนุมัติ',
+                            19: 'Invalid amount',
+                            30: 'Bad nonce',
+                            55: 'Wallet disabled',
+                            56: 'Insufficient balance'
+                        };
+                        throw new Error(`Bitkub Error ${j.error}: ${errs[j.error] || 'Unknown'}`)
+                    }
+                    if (isPublic && j.s !== 'ok') {
+                        throw new Error(`TradingView Error: ${j.errmsg || 'Unknown'}`)
+                    }
+                    return j
+                } else {
+                    const r = await fetch('https://api.bitkub.com' + p);
+                    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                    return r.json()
+                }
+            }
+
+            async function fetchLive() {
+                try {
+                    const resMap = {
+                        '1': 60,
+                        '5': 300,
+                        '15': 900,
+                        '30': 1800, // เพิ่มบรรทัดนี้
+                        '60': 3600,
+                        '240': 14400,
+                        'D': 86400
+                    };
+                    const tfSec = resMap[S.tf] || 900;
+                    const from = Math.floor(Date.now() / 1e3) - tfSec * 200;
+                    const to = Math.floor(Date.now() / 1e3);
+                    const d = await bitkub('/tradingview/history?symbol=' + $('coin').value + '_THB&resolution=' + S.tf + '&from=' + from + '&to=' + to, {}, false, true);
+                    if (d.s === 'ok' && d.c.length > 20) {
+                        S.df = d.t.map((_, i) => ({
+                            t: new Date(d.t[i] * 1e3),
+                            c: +d.c[i],
+                            h: +d.h[i],
+                            l: +d.l[i],
+                            o: +d.o[i],
+                            v: +d.v[i]
+                        }));
+                        $('pair').textContent = (S.mode === 'LIVE' ? 'LIVE' : 'DEMO') + '_' + $('coin').value;
+                        $('lastUpdate').textContent = 'อัปเดต: ' + new Date().toLocaleTimeString('th-TH');
+                        draw();
+                        update(); // update จะเรียก strategy เอง
+                        if (!S.connected) {
+                            $('status').textContent = `LIVE CONNECTED`;
+                            $('status').className = 'status live';
+                        }
+                        return true
+                    }
+                } catch (e) {
+                    log('ERROR', 0, 0, 'API: ' + e.message);
+                    $('status').textContent = 'LIVE ERROR: ' + e.message;
+                    $('status').className = 'status err'
+                }
+                return false
+            }
+
+            function tick() {
+                if (!S.active) return;
+                if (S.mode === 'LIVE') {
+                    fetchLive();
+                    return
+                }
+                const last = S.df[S.df.length - 1].c;
+                const ch = (Math.random() - 0.49) * 0.008 * last;
+                const newP = last + ch;
+                const h = newP * (1 + Math.random() * 0.003),
+                    l = newP * (1 - Math.random() * 0.003),
+                    o = last,
+                    v = Math.random() * 10;
+                S.df.push({
+                    t: new Date(),
+                    c: newP,
+                    h,
+                    l,
+                    o,
+                    v
+                });
+                if (S.df.length > 300) S.df.shift();
+                draw();
+                update() // update จะเรียก strategy เอง
+            }
+            async function syncCash() {
+                if (S.mode !== 'LIVE' || !S.connected) return;
+                try {
+                    const bal = await bitkub('/api/v3/market/balances', {}, true);
+                    if (!bal || bal.error || !bal.result) {
+                        log('ERROR', 0, 0, `Sync Balance พัง: ${bal ? 'Error ' + bal.error : 'No response'}`);
+                        return;
+                    }
+
+                    // แก้ตรงนี้ เอา?. ออก
+                    const realCash = bal.result.THB ? Number(bal.result.THB.available || 0) : 0;
+                    const coin = $('coin').value;
+
+                    // กัน coin ไม่มีใน balance
+                    const coinData = bal.result[coin];
+                    const realHold = coinData ? Number(coinData.available || 0) : 0;
+
+                    const st = CS();
+
+                    let changed = false;
+                    // 1. Sync เงินสด
+                    if (Math.abs(realCash - st.cash) > 0.01) {
+                        log('INFO', 0, 0, `Sync Cash: ${fmt(st.cash)} → ${fmt(realCash)}`);
+                        st.cash = realCash;
+                        changed = true;
+                    }
+
+                    // 2. Sync เหรียญ: กัน NaN ทั้งคู่
+                    const safeRealHold = Number.isFinite(realHold) ? realHold : 0;
+                    const safeTotalLots = Number.isFinite(S.totalLots) ? S.totalLots : 0;
+
+                    if (Math.abs(safeRealHold - safeTotalLots) > 0.00000001) {
+                        if (safeRealHold > (S.minAmt[coin] || 0.0001) && S.openOrders.length === 0) {
+                            log('WARN', 0, 0, `เจอเหรียญค้าง ${safeRealHold.toFixed(8)} ${coin} เก็บเป็น Dust`);
+                            S.dustMap[coin] = safeRealHold; // เก็บเข้า Map
+                            safe('pDust', safeRealHold.toFixed(8));
+                        } else if (S.openOrders.length > 0 && safeRealHold < (S.minAmt[coin] || 0.0001)) {
+                            log('WARN', 0, 'EA มีออเดอร์ค้าง แต่เหรียญจริงหมดแล้ว ล้าง Position ทั้งหมด');
+                            S.openOrders = [];
+                            S.breakEven = 0;
+                            S.totalLots = 0;
+                            S.nextGridPrice = 0;
+                            S.tslHigh = 0;
+                            S.dustMap[coin] = 0; // เคลียร์ Dust เหรียญนี้
+                            safe('pDust', '0.00000000');
+                            calcBreakEven();
+                        } else {
+                            log('INFO', 0, 0, `ส่วนต่าง ${Math.abs(safeRealHold - safeTotalLots).toFixed(8)} ${coin} น่าจะเป็น Dust`);
+                            S.dustMap[coin] = safeRealHold; // เก็บเข้า Map
+                            safe('pDust', safeRealHold.toFixed(8));
+                        }
+                        changed = true;
+                    }
+
+                    if (changed) {
+                        update();
+                        saveState();
+                    }
+                } catch (e) {
+                    log('ERROR', 0, 'Sync Balance ไม่สำเร็จ: ' + e.message);
+                }
+            }
+            let mousePos = null;
+            // === Multi-TF Trend Check ===
+            const trendTFs = ['1', '5', '15', '30', '60', '240', 'D'];
+            let trendCache = {};
+            let showTrendPanel = true; // เปิดเลย
+
+            $('chkTrend').checked = true; // ติ๊กให้อัตโนมัติ
+            $('trendPanel').style.display = 'block'; // โชว์ panel เลย
+            $('chkTrend').onchange = e => {
+                showTrendPanel = e.target.checked;
+                $('trendPanel').style.display = showTrendPanel ? 'block' : 'none';
+                if (showTrendPanel && S.mode === 'LIVE' && S.connected) updateAllTrends();
+            };
+            // เพิ่มฟังก์ชันคำนวณ EMA และ ADX ก่อน
+            function calcEMA(data, period) {
+                const k = 2 / (period + 1);
+                let ema = [data[0]];
+                for (let i = 1; i < data.length; i++) {
+                    ema.push(data[i] * k + ema[i - 1] * (1 - k));
+                }
+                return ema;
+            }
+
+            function calcADX(h, l, c, period = 14) {
+                if (h.length < period + 1) return 0;
+                let plusDM = [],
+                    minusDM = [],
+                    tr = [];
+
+                for (let i = 1; i < h.length; i++) {
+                    const upMove = h[i] - h[i - 1];
+                    const downMove = l[i - 1] - l[i];
+                    plusDM.push(upMove > downMove && upMove > 0 ? upMove : 0);
+                    minusDM.push(downMove > upMove && downMove > 0 ? downMove : 0);
+                    const hl = h[i] - l[i];
+                    const hc = Math.abs(h[i] - c[i - 1]);
+                    const lc = Math.abs(l[i] - c[i - 1]);
+                    tr.push(Math.max(hl, hc, lc));
+                }
+
+                const smooth = (arr) => {
+                    let sum = arr.slice(0, period).reduce((a, b) => a + b, 0);
+                    let result = [sum];
+                    for (let i = period; i < arr.length; i++) {
+                        sum = sum - sum / period + arr[i];
+                        result.push(sum);
+                    }
+                    return result;
+                };
+
+                const tr14 = smooth(tr);
+                const plus14 = smooth(plusDM);
+                const minus14 = smooth(minusDM);
+
+                const plusDI = plus14.map((v, i) => 100 * v / tr14[i]);
+                const minusDI = minus14.map((v, i) => 100 * v / tr14[i]);
+                const dx = plusDI.map((v, i) => 100 * Math.abs(v - minusDI[i]) / (v + minusDI[i]));
+
+                const adx = smooth(dx);
+                return adx[adx.length - 1] || 0;
+            }
+
+            async function fetchTrendTF(tf) {
+                try {
+                    const resMap = {
+                        '1': 60,
+                        '5': 300,
+                        '15': 900,
+                        '30': 1800,
+                        '60': 3600,
+                        '240': 14400,
+                        'D': 86400
+                    };
+
+                    const adxThreshold = {
+                        '1': 14,
+                        '5': 15,
+                        '15': 16,
+                        '30': 18,
+                        '60': 20,
+                        '240': 22,
+                        'D': 25
+                    }[tf] || 15;
+
+                    const slopeThreshold = {
+                        '1': 0.02,
+                        '5': 0.03,
+                        '15': 0.04,
+                        '30': 0.05,
+                        '60': 0.08,
+                        '240': 0.1,
+                        'D': 0.1
+                    }[tf] || 0.03;
+                    const tfSec = resMap[tf] || 900;
+                    const lookback = 100;
+                    const from = Math.floor(Date.now() / 1e3) - tfSec * lookback;
+                    const to = Math.floor(Date.now() / 1e3);
+                    const d = await bitkub(`/tradingview/history?symbol=${$('coin').value}_THB&resolution=${tf}&from=${from}&to=${to}`, {}, false, true);
+
+                    if (d.s === 'ok' && d.c.length >= 50) {
+                        const closes = d.c.map(x => +x);
+                        const highs = d.h.map(x => +x);
+                        const lows = d.l.map(x => +x);
+
+                        const ema9 = calcEMA(closes, 9);
+                        const ema21 = calcEMA(closes, 21);
+                        const ema50 = calcEMA(closes, 50);
+
+                        const last = closes[closes.length - 1];
+                        const e9 = ema9[ema9.length - 1];
+                        const e21 = ema21[ema21.length - 1];
+                        const e50 = ema50[ema50.length - 1];
+
+                        const slope21 = ((e21 - ema21[ema21.length - 5]) / ema21[ema21.length - 5]) * 100;
+                        const adx = calcADX(highs, lows, closes, 14);
+
+
+                        let trend = 'flat';
+                        const upTrend = e9 > e21 && e21 > e50 && last > e9 && slope21 > slopeThreshold && adx > adxThreshold;
+                        const downTrend = e9 < e21 && e21 < e50 && last < e9 && slope21 < -slopeThreshold && adx > adxThreshold;
+
+                        if (upTrend) trend = 'up';
+                        else if (downTrend) trend = 'down';
+
+                        // Fallback: ต้องอยู่ก่อน return
+                        if (trend === 'flat') {
+                            if (e9 > e21 && e21 > e50 && last > e9) trend = 'up';
+                            else if (e9 < e21 && e21 < e50 && last < e9) trend = 'down';
+                        }
+
+                        trendCache[tf + '_adx'] = adx.toFixed(1);
+                        trendCache[tf + '_slope'] = slope21.toFixed(2);
+                        trendCache[tf + '_weak'] = trend !== 'flat' && adx < adxThreshold;
+
+                        return trend; // return ไว้ท้ายสุด
+                    }
+                } catch (e) {
+                    console.log('Trend fetch error', tf, e.message);
+                }
+                return 'flat';
+            }
+            async function updateAllTrends() {
+                if (!showTrendPanel || S.mode !== 'LIVE' || !S.connected) return;
+
+                const coin = $('coin').value;
+                // log('INFO', 0, 0, `กำลังอัพเดท Trend ${coin}...`);
+
+                // 1. ขึ้น Loading ทุกช่องพร้อมกัน กันกระพริบ
+                trendTFs.forEach(tf => {
+                    const el = $(`trend-${tf}`);
+                    if (el) el.innerHTML = `<div class="trend-box flat" style="opacity:0.4">...</div>`;
+                });
+
+                try {
+                    // 2. ยิง API ทั้ง 6 TF พร้อมกัน ไม่รอทีละอัน
+                    const results = await Promise.all(
+                        trendTFs.map(tf => fetchTrendTF(tf))
+                    );
+
+                    // 3. อัพเดท UI ทีเดียวรวด 6 ช่อง
+                    results.forEach((trend, i) => {
+                        const tf = trendTFs[i];
+                        const el = $(`trend-${tf}`);
+                        if (!el) return;
+
+                        const adx = trendCache[tf + '_adx'] || '0';
+                        const slope = trendCache[tf + '_slope'] || '0';
+                        const isWeak = trendCache[tf + '_weak'];
+
+                        const text = trend === 'up' ? `▲ ${adx}` : trend === 'down' ? `▼ ${adx}` : `— ${adx}`;
+                        const cls = trend === 'up' ? (isWeak ? 'up-weak' : 'up') :
+                            trend === 'down' ? (isWeak ? 'down-weak' : 'down') : 'flat';
+
+                        el.innerHTML = `<div class="trend-box ${cls}" title="ADX: ${adx} Slope: ${slope}">${text}</div>`;
+                    });
+
+                    // log('SUCCESS', 0, 0, `อัพเดท Trend ${coin} เสร็จ`);
+                } catch (e) {
+                    log('ERROR', 0, 0, `อัพเดท Trend พัง: ${e.message}`);
+                    // ถ้าพัง ให้คืนเป็น —
+                    trendTFs.forEach(tf => {
+                        const el = $(`trend-${tf}`);
+                        if (el) el.innerHTML = `<div class="trend-box flat">—</div>`;
+                    });
+                }
+            }
+            setInterval(() => {
+                if (S.active && S.mode === 'LIVE' && showTrendPanel) updateAllTrends();
+            }, 60000);
+
+
+
+            function draw() {
+                const cvs = $('chart'),
+                    ctx = cvs.getContext('2d'),
+                    w = cvs.parentElement.clientWidth,
+                    h = cvs.parentElement.clientHeight;
+                if (!w || !h || !S.df.length) return;
+
+                cvs.width = w * devicePixelRatio;
+                cvs.height = h * devicePixelRatio;
+                cvs.style.width = w + 'px';
+                cvs.style.height = h + 'px';
+                ctx.scale(devicePixelRatio, devicePixelRatio);
+
+                if (!cvs.dataset.crosshair) {
+                    cvs.dataset.crosshair = '1';
+                    cvs.onmouseenter = () => cvs.style.cursor = 'crosshair';
+                    cvs.onmousemove = (e) => {
+                        const rect = cvs.getBoundingClientRect();
+                        mousePos = {
+                            x: e.clientX - rect.left,
+                            y: e.clientY - rect.top
+                        };
+                        draw();
+                    };
+                    cvs.onmouseleave = () => {
+                        cvs.style.cursor = 'default';
+                        mousePos = null;
+                        draw();
+                    };
+                }
+
+                const show = Math.min(100, S.df.length),
+                    d = S.df.slice(-show),
+                    priceW = 65,
+                    labelH = 18,
+                    chartH = h - labelH,
+                    chartW = w - priceW,
+                    xS = chartW / show;
+
+                let vs = d.flatMap(x => [x.h, x.l]).filter(v => v > 0 && isFinite(v));
+                const lastP = d[d.length - 1].c;
+                if (lastP > 0 && isFinite(lastP)) vs.push(lastP);
+
+                if (S.hold > 0 && S.entry > 0 && isFinite(S.entry)) {
+                    vs.push(S.entry);
+                }
+
+                // รวมราคา Grid Level เข้าไปคำนวณ min/max ด้วย จะได้เห็นเส้นครบ
+                if (S.openOrders.length > 0) {
+                    S.openOrders.forEach(o => vs.push(o.entry));
+                    if (S.nextGridPrice > 0) vs.push(S.nextGridPrice);
+                }
+
+                if (vs.length === 0) vs = [lastP * 0.95, lastP * 1.05];
+
+                let max = Math.max(...vs);
+                let min = Math.min(...vs);
+                let r = max - min || 1;
+
+                min = Math.max(0, min);
+
+                const pad = r * 0.05;
+                max += pad;
+                min -= pad;
+                r = max - min;
+
+                const yS = v => chartH - ((v - min) / r * chartH);
+                const xToPrice = x => {
+                    const idx = Math.floor((x / chartW) * show);
+                    return d[Math.min(idx, d.length - 1)];
+                };
+                const yToPrice = y => max - (y / chartH) * r;
+
+                const drawLevel = (v, c, l, solid = false) => {
+                    if (!v || v <= 0 || !isFinite(v)) return;
+                    const y = yS(v);
+                    const inRange = y >= 0 && y <= chartH;
+                    const displayY = inRange ? y : (v > max ? 8 : chartH - 8);
+
+                    // เช็คทับซ้อน
+                    if (!drawLevel.lastY) drawLevel.lastY = [];
+                    const tooClose = drawLevel.lastY.some(py => Math.abs(py - displayY) < 12);
+                    if (tooClose && !solid) return; // ซ่อน label ถ้าซ้อน แต่ยังวาดเส้น
+                    drawLevel.lastY.push(displayY);
+
+                    ctx.strokeStyle = c;
+                    ctx.fillStyle = c;
+                    ctx.lineWidth = solid ? 1.5 : 1;
+                    ctx.setLineDash(solid ? [] : [4, 4]);
+                    ctx.beginPath();
+                    ctx.moveTo(0, displayY);
+                    ctx.lineTo(chartW, displayY);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    if (!tooClose || solid) {
+                        const label = `${l} ${fmt(v)}${inRange ? '' : ' ↑↓'}`;
+                        ctx.font = '10px';
+                        ctx.textAlign = 'left';
+                        ctx.fillText(label, 4, displayY - 3);
+                    }
+                };
+                // รีเซ็ตก่อนวาดทุกครั้ง
+                drawLevel.lastY = [];
+
+                ctx.clearRect(0, 0, w, h);
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(0, 0, w, chartH);
+                ctx.clip();
+
+                // Grid + แกนราคาด้านขวา
+                ctx.strokeStyle = '#21262d';
+                ctx.lineWidth = 1;
+                ctx.font = '8px';
+                ctx.fillStyle = '#8b949e';
+                ctx.textAlign = 'left';
+
+                const gridCount = 6;
+                for (let i = 0; i <= gridCount; i++) {
+                    const y = chartH / gridCount * i;
+                    const price = max - (r / gridCount * i);
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(chartW, y);
+                    ctx.stroke();
+                    ctx.fillText(fmt(price), chartW + 6, y + 3);
+                }
+
+                ctx.beginPath();
+                ctx.moveTo(chartW, 0);
+                ctx.lineTo(chartW, chartH);
+                ctx.stroke();
+
+                // วาดแท่งเทียน
+                const candleW = Math.max(2, xS * 0.7);
+                d.forEach((x, i) => {
+                    const X = i * xS + xS / 2,
+                        Yo = yS(x.o),
+                        Yc = yS(x.c),
+                        Yh = yS(x.h),
+                        Yl = yS(x.l);
+                    const isUp = x.c >= x.o;
+                    ctx.strokeStyle = isUp ? '#00e676' : '#ff5252';
+                    ctx.fillStyle = isUp ? '#00e676' : '#ff5252';
+                    ctx.beginPath();
+                    ctx.moveTo(X, Yh);
+                    ctx.lineTo(X, Yl);
+                    ctx.stroke();
+                    ctx.fillRect(X - candleW / 2, Math.min(Yo, Yc), candleW, Math.abs(Yc - Yo) || 1);
+                });
+
+                // SMA
+                if (S.showSMA && d.length > 20) {
+                    const sma20 = calcSMA(d.map(x => x.c), 20),
+                        sma50 = calcSMA(d.map(x => x.c), 50);
+                    [
+                        [sma20, '#ffab40'],
+                        [sma50, '#40c4ff']
+                    ].forEach(([sma, col]) => {
+                        ctx.strokeStyle = col;
+                        ctx.lineWidth = 1.5;
+                        ctx.beginPath();
+                        let first = true;
+                        sma.forEach((v, i) => {
+                            if (v == null) return;
+                            const X = i * xS + xS / 2,
+                                Y = yS(v);
+                            first ? (ctx.moveTo(X, Y), first = false) : ctx.lineTo(X, Y)
+                        });
+                        ctx.stroke();
+                    });
+                }
+
+                // === วาด GRID LEVEL สีเหลืองทอง ===
+                if (S.openOrders.length > 0) {
+                    // วาดเส้นทุกไม้ที่เปิดแล้ว
+                    S.openOrders.forEach((o, idx) => {
+                        drawLevel(o.entry, '#FFD700', `GRID ${idx + 1}`, false);
+                    });
+                    // วาดเส้นไม้ถัดไปที่รอ DCA
+                    if (S.nextGridPrice > 0 && S.openOrders.length < S.gridLevels) {
+                        drawLevel(S.nextGridPrice, '#00e676', `NEXT ${S.openOrders.length + 1}`, true);
+                    }
+                }
+
+                // เส้น Entry/SL/TP
+                if (S.openOrders.length > 0) {
+                    drawLevel(S.breakEven, '#40c4ff', 'BE');
+                    const lastOrder = S.openOrders[S.openOrders.length - 1];
+                    drawLevel(lastOrder.sl, '#ff5252', 'SL');
+                    drawLevel(lastOrder.tp, '#00e676', 'TP');
+                }
+
+                // ราคาล่าสุด
+                const isUp = lastP >= d[d.length - 1].o;
+                const priceText = fmt(lastP);
+                ctx.font = 'bold 8px';
+                const textMetrics = ctx.measureText(priceText);
+                const labelW = textMetrics.width + 10;
+                const labelHBox = 16;
+                let lastY = yS(lastP);
+                lastY = Math.max(labelHBox / 2, Math.min(chartH - labelHBox / 2, lastY));
+
+                ctx.fillStyle = isUp ? '#00e676' : '#ff5252';
+                ctx.beginPath();
+                ctx.roundRect(chartW + 2, lastY - labelHBox / 2, labelW, labelHBox, 4);
+                ctx.fill();
+
+                ctx.fillStyle = '#000';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(priceText, chartW + 2 + labelW / 2, lastY);
+
+                ctx.setLineDash([3, 3]);
+                ctx.strokeStyle = isUp ? '#00e676' : '#ff5252';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(chartW, yS(lastP));
+                ctx.lineTo(chartW + 2, lastY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.restore();
+
+                // ====== CROSSHAIR ======
+                if (mousePos && mousePos.x >= 0 && mousePos.x <= chartW && mousePos.y >= 0 && mousePos.y <= chartH) {
+                    const crossX = mousePos.x;
+                    const crossY = mousePos.y;
+                    const crossPrice = yToPrice(crossY);
+                    const crossData = xToPrice(crossX);
+                    const crossTime = crossData.t.toLocaleString('en-GB', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    ctx.strokeStyle = '#8b949e';
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([4, 4]);
+                    ctx.beginPath();
+                    ctx.moveTo(crossX, 0);
+                    ctx.lineTo(crossX, chartH);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.moveTo(0, crossY);
+                    ctx.lineTo(chartW, crossY);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    const priceLabel = fmt(crossPrice);
+                    ctx.font = 'bold 10px';
+                    const pw = ctx.measureText(priceLabel).width + 8;
+                    const ph = 16;
+                    const py = Math.max(ph / 2, Math.min(chartH - ph / 2, crossY));
+
+                    ctx.fillStyle = 'var(--bg3)';
+                    ctx.fillRect(chartW + 2, py - ph / 2, pw, ph);
+                    ctx.strokeStyle = '#8b949e';
+                    ctx.strokeRect(chartW + 2, py - ph / 2, pw, ph);
+                    ctx.fillStyle = '#e6edf3';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(priceLabel, chartW + 2 + pw / 2, py);
+
+                    const tw = ctx.measureText(crossTime).width + 8;
+                    const th = 16;
+                    const tx = Math.max(tw / 2, Math.min(chartW - tw / 2, crossX));
+
+                    ctx.fillStyle = '#161b22';
+                    ctx.fillRect(tx - tw / 2, chartH + 1, tw, th);
+                    ctx.strokeStyle = '#8b949e';
+                    ctx.strokeRect(tx - tw / 2, chartH + 1, tw, th);
+                    ctx.fillStyle = '#e6edf3';
+                    ctx.fillText(crossTime, tx, chartH + 1 + th / 2);
+                }
+
+                // === Volume Chart ===
+                const vCvs = $('volChart'),
+                    vCtx = vCvs.getContext('2d'),
+                    vw = vCvs.parentElement.clientWidth,
+                    vh = vCvs.parentElement.clientHeight;
+                vCvs.width = vw * devicePixelRatio;
+                vCvs.height = vh * devicePixelRatio;
+                vCvs.style.width = vw + 'px';
+                vCvs.style.height = vh + 'px';
+                vCtx.scale(devicePixelRatio, devicePixelRatio);
+                const vols = d.map(x => x.v),
+                    maxV = Math.max(...vols) || 1;
+                vCtx.clearRect(0, 0, vw, vh);
+                d.forEach((x, i) => {
+                    const X = i * xS + xS / 2;
+                    const barH = (x.v / maxV) * vh;
+                    const isUp = x.c >= x.o;
+                    vCtx.fillStyle = isUp ? '#00e67640' : '#ff525240';
+                    vCtx.fillRect(X - candleW / 2, vh - barH, candleW, barH)
+                });
+
+                // === RSI Chart ===
+                const rCvs = $('rsiChart'),
+                    rCtx = rCvs.getContext('2d'),
+                    rw = rCvs.parentElement.clientWidth,
+                    rh = rCvs.parentElement.clientHeight;
+                rCvs.width = rw * devicePixelRatio;
+                rCvs.height = rh * devicePixelRatio;
+                rCvs.style.width = rw + 'px';
+                rCvs.style.height = rh + 'px';
+                rCtx.scale(devicePixelRatio, devicePixelRatio);
+
+                const rsiChartW = rw - 35;
+                const rsi = calcRSI(S.df.map(x => x.c)).slice(-show),
+                    rSy = v => rh - (v / 100 * rh);
+                rCtx.clearRect(0, 0, rw, rh);
+
+                rCtx.fillStyle = '#ff525215';
+                rCtx.fillRect(0, 0, rsiChartW, rSy(70));
+                rCtx.fillStyle = '#00e67615';
+                rCtx.fillRect(0, rSy(30), rsiChartW, rh - rSy(30));
+
+                rCtx.strokeStyle = '#21262d';
+                rCtx.lineWidth = 1;
+                rCtx.font = '9px';
+                rCtx.fillStyle = '#8b949e';
+                rCtx.textAlign = 'left';
+
+                [70, 50, 30].forEach(val => {
+                    const y = rSy(val);
+                    rCtx.beginPath();
+                    rCtx.moveTo(0, y);
+                    rCtx.lineTo(rsiChartW, y);
+                    rCtx.stroke();
+                    rCtx.fillText(val, rsiChartW + 4, y + 3);
+                });
+
+                rCtx.beginPath();
+                rCtx.moveTo(rsiChartW, 0);
+                rCtx.lineTo(rsiChartW, rh);
+                rCtx.stroke();
+
+                rCtx.strokeStyle = '#e040fb';
+                rCtx.lineWidth = 1;
+                rCtx.beginPath();
+                rsi.forEach((v, i) => {
+                    const x = i * xS + xS / 2,
+                        y = rSy(v);
+                    i ? rCtx.lineTo(x, y) : rCtx.moveTo(x, y)
+                });
+                rCtx.stroke();
+            }
+
+            function update() {
+                if (S.cooldown > Date.now()) {
+                    const remain = Math.ceil((S.cooldown - Date.now()) / 60000);
+                    safe('signal', `COOLDOWN ${remain}m`);
+                    return;
+                }
+                if (!S.df.length) return;
+                const p = S.df[S.df.length - 1].c || 0;
+                const rsi = calcRSI(S.df.map(x => x.c));
+                const curRSI = rsi[rsi.length - 1] || 50;
+                safe('rsi', curRSI.toFixed(2));
+                safeStyle('rsi', 'color', curRSI < 35 ? 'var(--green)' : curRSI > 65 ? 'var(--red)' : 'var(--amber)');
+                const coin = $('coin').value;
+                safe('price', fmt(p));
+                updateTitle(p, coin);
+                safe('signal', curRSI <= S.rsiB ? 'BUY' : curRSI >= S.rsiS ? 'SELL' : 'HOLD');
+                safeStyle('signal', 'color', curRSI <= S.rsiB ? 'var(--green)' : curRSI >= S.rsiS ? 'var(--red)' : 'var(--amber)');
+
+                const eq = CS().cash + (S.totalLots || 0) * p;
+                const st = CS();
+
+                // คำนวณ Max Drawdown
+                if (eq > st.maxEquity) st.maxEquity = eq;
+                const dd = st.maxEquity > 0 ? ((st.maxEquity - eq) / st.maxEquity * 100) : 0;
+                if (dd > st.maxDrawdown) st.maxDrawdown = dd;
+
+                safe('sMaxDD', (st.maxDrawdown || 0).toFixed(2) + '%');
+
+                safe('equity', fmt(eq)); // ลบบรรทัดซ้ำออก เหลืออันเดียว
+                const un = (S.totalLots || 0) > 0 ? (p - (S.breakEven || 0)) * (S.totalLots || 0) : 0;
+                safe('pStatus', (S.totalLots || 0) > 0 ? (un >= 0 ? 'LONG +' : 'LONG -') : 'FLAT');
+                safeStyle('pStatus', 'color', un > 0 ? 'var(--green)' : un < 0 ? 'var(--red)' : 'var(--muted)');
+                safe('pCash', fmt(CS().cash));
+                safe('pHold', (S.totalLots || 0).toFixed(6));
+                safe('pEntry', S.breakEven ? fmt(S.breakEven) : '—');
+                safe('pPnl', (S.totalLots || 0) > 0 ? (un >= 0 ? '+' : '') + fmt(un) : '—');
+                safeStyle('pPnl', 'color', un > 0 ? 'var(--green)' : un < 0 ? 'var(--red)' : 'var(--muted)');
+
+                const totalTrades = st.wins + st.loss; // เพิ่ม const
+                safe('statMode', S.mode);
+                safe('logMode', S.mode);
+                safe('sTrades', totalTrades);
+                safe('sWL', st.wins + '/' + st.loss);
+                const wr = totalTrades > 0 ? (st.wins / totalTrades * 100) : 0;
+                safe('sWR', totalTrades > 0 ? wr.toFixed(0) + '%' : '—');
+                safe('sWRBig', totalTrades > 0 ? wr.toFixed(0) + '%' : '—');
+                safeClass('sWRBig', 'stat-big ' + (wr >= 60 ? 'green' : wr >= 40 ? 'amber' : 'red'));
+                const pf = st.totalLoss > 0 ? (st.totalWin / st.totalLoss) : (st.totalWin > 0 ? '∞' : '—');
+                safe('sPF', typeof pf === 'number' ? pf.toFixed(2) : pf);
+                safe('sPnl', fmt(eq - st.initEquity));
+                safeStyle('sPnl', 'color', eq >= st.initEquity ? 'var(--green)' : 'var(--red)');
+                safe('sWin', '+' + fmt(st.totalWin));
+                safe('sLoss', '-' + fmt(st.totalLoss));
+                safeStyle('sWin', 'color', 'var(--green)');
+                safeStyle('sLoss', 'color', 'var(--red)');
+
+                if (S.active) strategy(p, curRSI)
+            }
+
+            function strategy(p, rsi) {
+                // กันกรณีมีออเดอร์ค้างแต่ BreakEven หาย = รีเซ็ตทิ้งเลย
+                if (S.openOrders.length > 0 && (!S.breakEven || S.breakEven === 0)) {
+                    log('WARN', p, 0, 'มีออเดอร์ค้าง แต่ BreakEven = 0 รีเซ็ต Position ทั้งหมด');
+                    S.openOrders = [];
+                    S.hold = 0;
+                    S.entry = 0;
+                    S.sl = 0;
+                    S.tp = 0;
+                    S.dcaCount = 0;
+                    S.tslHigh = 0;
+                    S.breakEven = 0;
+                    S.totalLots = 0;
+                    S.nextGridPrice = 0;
+                    safe('pDust', '0.00000000');
+                    safe('signal', 'BE MISSING - RESET');
+                    saveState();
+                    return;
+                }
+
+                if (S.openOrders.length > 0) {
+                    const profitPct = (p - S.breakEven) / S.breakEven;
+                    const afterFee = profitPct - (S.fee * 2);
+
+                    // 1.1 Trailing SL: ขยับเฉพาะตอนกำไรหลัง fee >= minProfit เท่านั้น
+                    if (S.useTSL && p > S.tslHigh && afterFee >= S.minProfit) {
+                        const newSL = p * (1 - S.tslP / 100);
+                        const oldLowestSL = Math.min(...S.openOrders.map(o => o.sl));
+                        // ขยับขึ้นทีละ 0.15% กันสแปม log
+                        if (newSL > oldLowestSL * 1.0015) {
+                            S.tslHigh = p;
+                            S.openOrders.forEach(o => o.sl = newSL);
+                            if (Date.now() - (S.lastTSLLog || 0) > 5000) {
+                                log('INFO', p, 0, `ขยับ TSL ทุกไม้เป็น ${fmt(newSL)} | High: ${fmt(p)} | กำไรหลัง fee ${(afterFee * 100).toFixed(2)}%`);
+                                S.lastTSLLog = Date.now();
+                            }
+                        } else if (newSL > oldLowestSL) {
+                            S.tslHigh = p;
+                            S.openOrders.forEach(o => o.sl = newSL);
+                        }
+                    }
+
+                    // 1.2 DCA: ใช้ราคาไม้แรกเป็นหลัก
+                    if (S.useDCA && S.openOrders.length < S.gridLevels) {
+                        const nextDcaStep = S.openOrders.length;
+                        const firstOrderPrice = S.openOrders[0].entry;
+                        const dcaPrice = firstOrderPrice * (1 - (S.gridDistance / 100) * (nextDcaStep + 1));
+                        if (p <= dcaPrice && rsi <= S.rsiB) {
+                            if (Date.now() - S.lastBuyTime < 10 * 1000) {
+                                const remainSec = ((10 * 1000 - (Date.now() - S.lastBuyTime)) / 1000).toFixed(0);
+                                if (Date.now() - (S.lastDCALog || 0) > 5000) {
+                                    log('INFO', p, 0, `ถึงราคา DCA ${fmt(dcaPrice)} แต่ติด Cooldown อีก ${remainSec} วิ`);
+                                    S.lastDCALog = Date.now();
+                                }
+                                return;
+                            }
+                            buy(p, rsi, true);
+                            return;
+                        }
+                    }
+
+                    // 1.3 Stop Loss
+                    const lowestSL = Math.min(...S.openOrders.map(o => o.sl));
+                    if (p <= lowestSL) {
+                        const reason = lowestSL > S.breakEven && afterFee > 0 ? 'Trailing Stop กำไร' : 'Stop Loss ตัดขาดทุน';
+                        sell(p, reason);
+                        return;
+                    }
+
+                    // 1.4 Take Profit
+                    const tpPrice = S.breakEven * (1 + S.tpP / 100);
+                    if (p >= tpPrice) {
+                        if (afterFee > 0) {
+                            sell(p, 'Take Profit ยกแผง');
+                        } else {
+                            if (Date.now() - (S.lastTPLog || 0) > 10000) {
+                                log('INFO', p, 0, `TP ถึง ${fmt(tpPrice)} แต่กำไรหลัง fee ${(afterFee * 100).toFixed(2)}% ยังไม่ขาย`);
+                                S.lastTPLog = Date.now();
+                            }
+                        }
+                        return;
+                    }
+
+                    // 1.5 RSI Signal
+                    if (rsi >= S.rsiS) {
+                        if (afterFee >= S.minProfit) {
+                            sell(p, 'RSI Signal ปิดยกแผง');
+                        } else {
+                            if (Date.now() - (S.lastRSILog || 0) > 10000) {
+                                log('INFO', p, 0, `RSI ${rsi.toFixed(1)}≥${S.rsiS} แต่กำไรหลัง fee ${(afterFee * 100).toFixed(2)}% < ${(S.minProfit * 100).toFixed(1)}% รอต่อ`);
+                                S.lastRSILog = Date.now();
+                            }
+                        }
+                        return;
+                    }
+                }
+
+                // 2. เข้าไม้แรก: ต้องไม่มีออเดอร์ + RSI ต่ำ + ยืนยันเทรนด์
+                if (S.openOrders.length === 0 && rsi <= S.rsiB && S.df.length > 50) {
+                    const closes = S.df.map(x => x.c);
+                    const sma20 = calcSMA(closes, 20);
+                    const sma50 = calcSMA(closes, 50);
+                    const prev = S.df.at(-2);
+                    const curSMA20 = sma20.at(-1);
+                    const curSMA50 = sma50.at(-1);
+                    const isUptrend = curSMA20 && curSMA50 && curSMA20 > curSMA50;
+                    const isPrevRed = prev && prev.c < prev.o;
+
+                    // เช็คเงินก่อนยิง กันซื้อ 0 BTC
+                    const st = CS();
+                    const minTHB = (S.minAmt[$('coin').value] || 0.0001) * p;
+                    if (st.cash < Math.max(10, minTHB)) {
+                        if (Date.now() - (S.lastCashLog || 0) > 30000) {
+                            log('INFO', p, 0, `เงินไม่พอเข้าไม้แรก เงินสด ${fmt(st.cash)} < ${fmt(Math.max(10, minTHB))}`);
+                            S.lastCashLog = Date.now();
+                        }
+                        return;
+                    }
+
+                    if (isUptrend && isPrevRed) {
+                        buy(p, rsi, false);
+                    }
+                }
+            }
+            async function buy(p, rsi, isDCA = false) {
+                if (S.buyLock) return;
+                S.buyLock = true;
+                setTimeout(() => S.buyLock = false, 1000);
+                if (Date.now() - S.lastBuyTime < 10 * 1000 && isDCA) {
+                    log('INFO', p, '—', 'DCA เร็วเกินไป รอ 10 วิ');
+                    return;
+                }
+
+                const st = CS();
+                const coin = $('coin').value;
+                const minAmt = S.minAmt[coin] || 0.0001;
+                const minTHB = minAmt * p;
+                const cashAvailable = st.cash;
+
+                if (cashAvailable < minTHB * 1.01) {
+                    log('ERROR', p, '—', `เงินหมด/ไม่พอซื้อขั้นต่ำ มี ${fmt(cashAvailable)} ต้องใช้ ${fmt(minTHB)}`);
+                    return;
+                }
+
+                let baseOrder = S.size;
+                if (isDCA) {
+                    const level = S.openOrders.length;
+                    const fibo = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55];
+
+                    switch (S.dcaMode) {
+                        case 'allin':
+                            baseOrder = S.size * 0.5;
+                            if (baseOrder < minTHB && cashAvailable >= minTHB * 1.01) {
+                                baseOrder = cashAvailable * 0.98;
+                                log('INFO', p, '—', `โหมด All-in: ทุ่มเงินที่เหลือ ${fmt(baseOrder)} บาท`);
+                            }
+                            break;
+                        case 'fixed':
+                            baseOrder = S.size * 0.5;
+                            break;
+                        case 'martingale':
+                            baseOrder = S.size * Math.pow(2, level);
+                            break;
+                        case 'fibonacci':
+                            baseOrder = S.size * fibo[Math.min(level, fibo.length - 1)];
+                            break;
+                        default:
+                            baseOrder = S.size * 0.5;
+                    }
+                }
+
+                if (S.dcaMode !== 'allin' && baseOrder < minTHB) {
+                    if (cashAvailable >= minTHB * 1.01) {
+                        const modeText = {
+                            percent: '50%',
+                            allin: 'All-in',
+                            martingale: 'ทบไม้ x2',
+                            fibonacci: 'Fibonacci'
+                        }[S.dcaMode] || S.dcaMode;
+
+                        log('INFO', p, '—', `โหมด ${modeText}: อัพไซส์จาก ${fmt(baseOrder)} เป็นขั้นต่ำ ${fmt(minTHB)} อัตโนมัติ`);
+                        baseOrder = minTHB * 1.01;
+                    } else {
+                        log('ERROR', p, '—', `คำนวณได้ ${fmt(baseOrder)} บาท ต่ำกว่าขั้นต่ำ ${fmt(minTHB)} และเงินไม่พอ ยกเลิก`);
+                        return;
+                    }
+                }
+                let orderValue = Math.min(baseOrder, cashAvailable * 0.98);
+
+                if (orderValue < minTHB) {
+                    log('ERROR', p, '—', `คำนวณสุดท้ายได้ ${fmt(orderValue)} บาท ต่ำกว่าขั้นต่ำ ${fmt(minTHB)} ยกเลิก`);
+                    return;
+                }
+
+                // แก้ตรงนี้: คำนวณเป็นจำนวนเหรียญเสมอ ไม่ว่า LIVE หรือ SIM
+                let bAmt = Math.floor((orderValue / p) * 100000) / 100000;
+                bAmt = parseFloat(bAmt.toFixed(8));
+
+                if (bAmt < minAmt) {
+                    log('ERROR', p, '—', `ปัด Step แล้วได้ ${bAmt.toFixed(8)} ${coin} ต่ำกว่าขั้นต่ำ ${minAmt} ยกเลิก`);
+                    return;
+                }
+
+                if (isDCA) {
+                    log('SUCCESS', p, 0, `เข้า GRID ไม้ ${S.openOrders.length + 1} ที่ ${fmt(S.nextGridPrice)} RSI=${rsi.toFixed(1)}`);
+                } else {
+                    log('SUCCESS', p, 0, `เข้าเงื่อนไขครบ RSI:${rsi.toFixed(1)} SMA20>SMA50 แท่งแดง ยิง BUY ไม้แรก`);
+                }
+
+                log('DEBUG', p, '—', `Sending >> BUY MARKET ORDER ${S.openOrders.length + 1} ${fmt(orderValue)} THB`);
+                safe('status', `Sending >> BUY MARKET ORDER ${S.openOrders.length + 1}`);
+
+                const r = await api(S.mode === 'LIVE' ? '/api/v3/market/place-bid' : '/simulate', {
+                    sym: coin.toLowerCase() + '_thb',
+                    amt: bAmt, // ส่งจำนวนเหรียญที่ถูกแล้ว
+                    rat: 0,
+                    typ: 'market'
+                });
+
+                if (!r || r.error) {
+                    log('ERROR', p, '—', r ? `Bitkub Error ${r.error}: ${bitkubErrorMap[r.error] || 'Unknown'}` : 'No response');
+                    S.active = false;
+                    safe('status', 'ERROR');
+                    safe('btnMain', 'START');
+                    saveState();
+                    return;
+                }
+
+                const orderId = r.result && r.result.id ? r.result.id : (r.id || 'SIM');
+                let filledAmt = 0;
+                let filledRat = p;
+                let thbUsed = orderValue * (1 + S.fee); // ค่าเริ่มต้นสำหรับ SIM
+
+                if (S.mode === 'LIVE' && r.result) {
+                    filledAmt = parseFloat(r.result.amt || 0);
+                    filledRat = parseFloat(r.result.rat || p);
+
+                    // ใช้เงินจริงจาก API กันหักเงินเกิน
+                    const thbUsed = parseFloat(r.result.rec || orderValue) || orderValue;
+                    if (thbUsed <= 0) {
+                        log('ERROR', p, '—', 'API คืน thbUsed = 0 ยกเลิก');
+                        return;
+                    }
+                    st.cash -= thbUsed;
+
+                    if (!Number.isFinite(filledAmt) || filledAmt < minAmt) {
+                        log('ERROR', p, '—', `API คืน amt=${r.result.amt} ผิดปกติ ยกเลิกออเดอร์`);
+                        return;
+                    }
+                } else {
+                    filledAmt = bAmt;
+                    st.cash -= thbUsed;
+                }
+
+                if (!Number.isFinite(filledAmt) || filledAmt <= 0) {
+                    log('ERROR', p, '—', `filledAmt ไม่ใช่ตัวเลข: ${filledAmt} ยกเลิก`);
+                    return;
+                }
+
+                S.openOrders.push({
+                    entry: filledRat,
+                    amt: filledAmt,
+                    sl: filledRat * (1 - S.slP / 100),
+                    tp: filledRat * (1 + S.tpP / 100),
+                    id: orderId
+                });
+
+                calcBreakEven();
+
+                if (S.openOrders.length < S.gridLevels) {
+                    const nextStep = S.openOrders.length;
+                    S.nextGridPrice = S.openOrders[0].entry * (1 - (S.gridDistance / 100) * nextStep);
+                } else {
+                    S.nextGridPrice = 0;
+                }
+
+                S.tslHigh = filledRat;
+                S.lastBuyTime = Date.now();
+
+                update();
+                draw();
+
+                const buyValue = filledAmt * filledRat;
+                const dateStr = new Date().toLocaleString('th-TH', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                log('BUY', filledRat, 0, `ไม้ ${S.openOrders.length} | ${filledAmt.toFixed(8)} ${coin} | ${fmt(buyValue)} THB | RSI:${rsi.toFixed(1)} | ${dateStr}`);
+
+                saveState();
+                setTimeout(syncCash, 2500);
+            }
+            async function sell(p, rsn) {
+                if (!S.openOrders || S.openOrders.length === 0) {
+                    log('INFO', p, '—', 'ไม่มี Position ให้ขาย');
+                    return;
+                }
+
+                const coin = $('coin').value;
+                log('DEBUG', p, 0, `เตรียมขาย ${S.openOrders.length} ไม้: ${JSON.stringify(S.openOrders.map(o => o.amt))}`);
+                const totalAmt = S.openOrders.reduce((sum, o) => sum + Number(o.amt || 0), 0);
+                const minAmt = S.minAmt[coin] || 0.0001;
+
+                // กันขายเศษต่ำกว่า Min Amount
+                if (totalAmt < minAmt) {
+                    log('INFO', p, '—', `เหลือเศษ ${totalAmt.toFixed(8)} ${coin} ต่ำกว่าขั้นต่ำ ${minAmt} เก็บไว้ DCA`);
+                    safe('pDust', totalAmt.toFixed(8));
+                    // เคลียร์ทุกอย่างกัน TSL ทำงานต่อ
+                    S.openOrders = [];
+                    S.totalLots = 0; // บรรทัดที่ 1: เคลียร์จำนวนเหรียญ
+                    S.hold = 0; // บรรทัดที่ 2: เคลียร์ status
+                    S.breakEven = 0; // บรรทัดที่ 3: เคลียร์ราคาเฉลี่ย
+                    S.nextGridPrice = 0;
+                    S.tslHigh = 0;
+                    S.entry = 0;
+                    S.sl = 0;
+                    S.tp = 0;
+                    S.dcaCount = 0;
+                    saveState();
+                    return;
+                }
+
+                const st = CS();
+                let actualPrice = p;
+                let actualAmt = totalAmt;
+                let thbReceived = 0;
+
+                if (S.mode === 'LIVE') {
+                    const ok = await confirmOrder('SELL', p, totalAmt);
+                    if (!ok) return;
+                    try {
+                        const res = await bitkub('/api/v3/market/place-ask', {
+                            sym: coin.toLowerCase() + '_thb',
+                            amt: parseFloat(totalAmt.toFixed(8)), // ปัด 8 ตำแหน่งกัน Error 19
+                            rat: 0,
+                            typ: 'market'
+                        }, true);
+
+                        thbReceived = parseFloat(res.result.rec || 0);
+                        actualAmt = parseFloat(res.result.amt || totalAmt);
+
+                        // กันหาร 0
+                        if (actualAmt > 0) actualPrice = thbReceived / actualAmt;
+                        else actualPrice = p;
+
+                        log('SELL LIVE', actualPrice, 0, `ID:${res.result.id} ปิดยกแผง ${actualAmt.toFixed(8)} ได้ ${fmt(thbReceived)} THB`);
+                        st.cash += thbReceived;
+                    } catch (e) {
+                        log('ERROR', p, 0, e.message);
+                        return;
+                    }
+                } else {
+                    const grossValue = totalAmt * p;
+                    const feePaid = grossValue * S.fee;
+                    thbReceived = grossValue - feePaid;
+                    st.cash += thbReceived;
+                }
+
+                // กัน NaN: ถ้า API คืน amt = 0 ให้ยกเลิก
+                if (!actualAmt || isNaN(actualAmt) || actualAmt <= 0) {
+                    log('ERROR', p, 0, `Bitkub คืนจำนวนเหรียญขาย ${actualAmt} ยกเลิกเพื่อกันพัง`);
+                    return;
+                }
+
+                const costBasis = S.breakEven * actualAmt;
+                const buyFee = S.breakEven * actualAmt * S.fee;
+                const netPnL = thbReceived - costBasis - buyFee;
+                const netPnLPct = costBasis > 0 ? (netPnL / costBasis) * 100 : 0;
+
+                if (netPnL > 0) {
+                    st.wins++;
+                    st.totalWin += netPnL;
+                } else {
+                    st.loss++;
+                    st.totalLoss += Math.abs(netPnL);
+                    S.cooldown = Date.now() + 30 * 60 * 1000;
+                    log('INFO', p, 0, 'เข้า Cooldown 30 นาทีหลังขาดทุน');
+                }
+
+                const safePnLPct = Number.isFinite(netPnLPct) ? netPnLPct : 0;
+                log('SELL', actualPrice, netPnL, `${rsn} | ปิด ${S.openOrders.length} ไม้ | สุทธิ:${safePnLPct.toFixed(2)}%`);
+
+                // เคลียร์ทุกอย่างให้หมด กัน TSL/BUY ทำงานต่อ
+                S.openOrders = [];
+                S.breakEven = 0;
+                S.totalLots = 0;
+                S.nextGridPrice = 0;
+                S.tslHigh = 0;
+                S.hold = 0; // สำคัญมาก: ต้องเคลียร์ตัวนี้ด้วย
+                S.entry = 0;
+                S.sl = 0;
+                S.tp = 0;
+                S.dcaCount = 0;
+                S.dustMap[$('coin').value] = 0; // เคลียร์ Dust เหรียญที่ขาย
+                safe('pDust', '0.00000000');
+                calcBreakEven();
+                update(); // อัพเดท UI ทันที
+                saveState();
+                safe('status', S.mode === 'LIVE' ? 'LIVE CONNECTED' : 'SIMULATE MODE');
+                setTimeout(syncCash, 2000);
+            }
+
+            function confirmOrder(side, p, amt) {
+                return new Promise(res => {
+                    // ถ้าไม่ใช่ LIVE หรือเปิด Auto ไว้ = ไม่ต้องถาม
+                    if (S.mode !== 'LIVE' || S.autoTrade) {
+                        res(true);
+                        return;
+                    }
+                    $('modalTxt').textContent = `${side} ${amt.toFixed(6)} ${$('coin').value} @ ${fmt(p)} THB\nรวม ${fmt(amt * p)} บาท\n⚠️ นี่คือเงินจริง!`;
+                    $('modal').classList.add('show');
+                    $('modalOk').onclick = () => {
+                        $('modal').classList.remove('show');
+                        res(true)
+                    };
+                    $('modalCancel').onclick = () => {
+                        $('modal').classList.remove('show');
+                        res(false)
+                    }
+                })
+            }
+
+            function log(t, p, pr, ex) {
+                if (t === 'DEBUG') return;
+                const tm = new Date().toLocaleTimeString('th-TH', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const st = CS();
+                st.logs.unshift({
+                    t: tm,
+                    type: t,
+                    p,
+                    pr,
+                    ex
+                });
+                if (st.logs.length > 200) st.logs.pop();
+                renderLogs();
+                saveState();
+            }
+
+            function renderLogs() {
+                const L = $('logs'),
+                    st = CS();
+                if (!st.logs.length) {
+                    L.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px">กด START เพื่อเริ่ม</div>';
+                    return
+                }
+                L.innerHTML = st.logs.map(l => {
+                            const tagClass = l.type.includes('BUY') ? 'tag-buy' :
+                                l.type.includes('SELL') ? 'tag-sell' :
+                                l.type.includes('SUCCESS') ? 'tag-success' :
+                                l.type === 'ERROR' ? 'tag-err' : 'tag-info';
+
+                            let detail = '';
+                            if (l.type === 'BUY' || l.type === 'SELL') {
+                                detail = ` @${fmt(l.p)}${l.pr !== 0 ? ` P&L:${l.pr > 0 ? '+' : ''}${fmt(l.pr)}` : ''} | ${l.ex || ''}`;
+                    } else {
+                        detail = fmt(l.p) !== '—' ? ` @${fmt(l.p)}` : '';
+                        detail += l.pr !== 0 ? ` P&L:${l.pr > 0 ? '+' : ''}${fmt(l.pr)}` : '';
+                        detail += ` | ${l.ex || ''}`;
+                    }
+                    return `<div class="log">${l.t} | <span class="${tagClass}">${l.type}</span>${detail}</div>`
+                }).join('')
+            }
+
+            function clearLogs() {
+                if (!confirm('ล้าง Logs โหมด ' + S.mode + ' ทั้งหมด?')) return;
+                CS().logs = [];
+                renderLogs();
+                saveState();
+            }
+
+            function exportLogs() {
+                const st = CS();
+                if (!st.logs.length) {
+                    alert('ไม่มี Logs ให้ Export');
+                    return
+                }
+                const csv = 'Time,Type,Price,P&L,Note\n' + st.logs.map(l => `${l.t},${l.type},${l.p},${l.pr},"${l.ex || ''}"`).join('\n');
+                const blob = new Blob([csv], {
+                    type: 'text/csv'
+                });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `EA_Logs_${S.mode}_${new Date().toISOString().slice(0, 10)}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            $('btnClearLogs').onclick = clearLogs;
+            $('btnExportLogs').onclick = exportLogs;
+
+            function toggleControls(lock) {
+                const ids = [
+                    'modeSim', 'modeLive', 'coin', 'btnReset', 'btnHardReset', 'btnBacktest',
+                    'size', 'rsiB', 'rsiS', 'sl', 'tp', 'minPf', 'chkSMA', 'chkTSL',
+                    'chkDCA', 'dcaMode', 'chkAuto'
+                ];
+                ids.forEach(id => {
+                    const el = $(id);
+                    if (el) {
+                        el.disabled = lock;
+                        el.style.opacity = lock ? '0.4' : '1';
+                        el.style.cursor = lock ? 'not-allowed' : 'pointer';
+                    }
+                });
+
+                // ล็อกปุ่ม TF ทั้งหมด
+                document.querySelectorAll('.tf-btn').forEach(btn => {
+                    btn.disabled = lock;
+                    btn.style.opacity = lock ? '0.4' : '1';
+                    btn.style.cursor = lock ? 'not-allowed' : 'pointer';
+                });
+            }
+            async function start() {
+                if (S.active) return;
+                if (S.mode === 'LIVE' && !S.connected) {
+                    alert('LIVE MODE ต้องกด CONNECT ก่อน');
+                    return;
+                }
+
+                const st = CS();
+                const coin = $('coin').value;
+                const minAmt = S.minAmt[coin] || 0.0001;
+                
+                // เช็ค 1: เงินพอ Grid หรือไม่
+                if (st.cash < S.capitalReq) {
+                    const need = S.capitalReq - st.cash;
+                    alert(`เงินไม่พอเปิด Grid!\n\nเงินสด: ${fmt(st.cash)} THB\nต้องใช้: ${fmt(S.capitalReq)} THB\nขาดอีก: ${fmt(need)} THB\n\nลด Order Size หรือเติมเงินก่อน`);
+                    log('ERROR', 0, 0, `เงินไม่พอ Start ขาด ${fmt(need)} THB`);
+                    return;
+                }
+
+                // เช็ค 2: เงินพอซื้อขั้นต่ำ 1 ไม้หรือไม่ - เพิ่มตรงนี้
+                let lastPrice = 0;
+                if (S.df.length > 0) {
+                    lastPrice = S.df[S.df.length - 1].c;
+                } else {
+                    // ถ้ายังไม่มีราคา ดึงสดมาก่อน
+                    try {
+                        const d = await bitkub('/tradingview/history?symbol=' + coin + '_THB&resolution=1&from=' + (Math.floor(Date.now() / 1e3) - 60) + '&to=' + Math.floor(Date.now() / 1e3), {}, false, true);
+                        if (d.s === 'ok' && d.c.length > 0) lastPrice = +d.c[d.c.length - 1];
+                    } catch (e) {}
+                }
+                
+                const minTHB = lastPrice > 0 ? minAmt * lastPrice : 0; // ย้ายมาประกาศข้างนอก
+
+                if (lastPrice > 0) {
+                    if (st.cash < minTHB * 1.01) {
+                        alert(`เงินไม่พอซื้อขั้นต่ำ!\n\nเหรียญ: ${coin}\nขั้นต่ำ: ${minAmt} ${coin}\nราคาตอนนี้: ${fmt(lastPrice)} THB\nต้องใช้: ${fmt(minTHB)} THB\n\nเงินสดมี: ${fmt(st.cash)} THB\nขาดอีก: ${fmt(minTHB - st.cash)} THB`);
+                        log('ERROR', 0, 0, `เงินไม่พอซื้อขั้นต่ำ ${coin} ต้องใช้ ${fmt(minTHB)} มี ${fmt(st.cash)}`);
+                        return;
+                    }
+                    
+                    // เช็ค 3: Order Size ที่ตั้งไว้ พอซื้อขั้นต่ำไหม
+                    if (S.size < minTHB) {
+                        alert(`Order Size ต่ำเกินไป!\n\nเหรียญ: ${coin}\nขั้นต่ำ: ${minAmt} ${coin} = ${fmt(minTHB)} THB\n\nOrder Size ตอนนี้: ${fmt(S.size)} THB\n\nกรุณาตั้ง Order Size อย่างน้อย ${Math.ceil(minTHB)} THB`);
+                        log('ERROR', 0, 0, `Order Size ${fmt(S.size)} ต่ำกว่าขั้นต่ำ ${fmt(minTHB)} THB`);
+                        return;
+                    }
+                }
+
+                S.active = true;
+                $('btnMain').textContent = '■ STOP';
+                $('btnMain').className = 'btn btn-stop';
+
+                toggleControls(true);
+
+                // เพิ่ม Log Config ทั้งหมดตรงนี้
+
+                log('SUCCESS', 0, 0, '==========================================');
+                log('SUCCESS', 0, 0, `Grid: ${S.gridLevels} ไม้ ห่าง ${S.gridDistance}% | Capital Req: ${fmt(S.capitalReq)} THB`);
+
+                let dcaText = 'ปิด';
+                if (S.useDCA) {
+                    const modeMap = {
+                        'percent': '50% ทุกไม้',
+                        'allin': 'All-in ไม้ 2',
+                        'martingale': 'ทบไม้ x2',
+                        'fibonacci': 'Fibonacci'
+                    };
+                    dcaText = `เปิด ลง ${S.dcaStep}% ซื้อเพิ่ม | Mode: ${modeMap[S.dcaMode] || S.dcaMode} | สูงสุด ${S.dcaMax} ไม้`;
+                }
+                log('SUCCESS', 0, 0, `DCA ถัว: ${dcaText}`);
+
+                log('SUCCESS', 0, 0, `Trailing SL: ${S.useTSL ? 'เปิดใช้ ' + S.tslP + '%' : 'ปิด'}`);
+                log('SUCCESS', 0, 0, `กำไรขั้นต่ำ: ${(S.minProfit * 100).toFixed(1)}%`);
+                log('SUCCESS', 0, 0, `Stop Loss: ${S.slP}% | Take Profit: ${S.tpP}%`);
+                log('SUCCESS', 0, 0, `RSI Buy ≤ ${S.rsiB} | RSI Sell ≥ ${S.rsiS}`);
+                log('SUCCESS', 0, 0, `Order Size: ${fmt(S.size)} THB`);
+                log('SUCCESS', 0, 0, `Auto Trade: ${S.autoTrade ? 'เปิด' : 'ปิด'} | ระบบ ซื้อ/ขาย อัตโนมัติ`);
+                if (lastPrice > 0) {
+                    log('SUCCESS', 0, 0, `ขั้นต่ำ ${coin}: ${minAmt} ${coin} = ${fmt(minTHB)} THB | เงินสด: ${fmt(st.cash)} THB`);
+                }
+                log('SUCCESS', 0, 0, `เหรียญที่เลือก: ${coin} | TF: ${S.tf} | Mode: ${S.mode}`);
+                log('SUCCESS', 0, 0, '===== เริ่มทำงานด้วย Config ต่อไปนี้ =====');
+
+                if (!S.df.length) S.df = await genDemo();
+                draw();
+                update();
+                calcCapitalReq();
+                S.timer = setInterval(tick, S.mode === 'LIVE' ? 15000 : 2000)
+            }
+            function stop() {
+                if (!S.active) return;
+                S.active = false;
+                clearInterval(S.timer);
+                $('btnMain').textContent = '▶ START';
+                $('btnMain').className = 'btn btn-start'
+                safe('pageTitle', 'SAPCE PRO+ v1.0');
+
+                toggleControls(false); // ปลดล็อกปุ่มทั้งหมด
+                calcCapitalReq(); // เช็คเงินพอไหมอีกรอบ
+            }
+            async function connectLive() {
+                S.apiK = $('apiKey').value.trim();
+                S.apiS = $('apiSec').value.trim();
+                if (!S.apiK ||!S.apiS) {
+                    alert('กรุณาใส่ API Key และ Secret');
+                    return
+                }
+                if (!$('chkRisk').checked) {
+                    alert('ต้องติ๊กยอมรับความเสี่ยงก่อน');
+                    return
+                }
+                saveState();
+                safe('status', 'CONNECTING...');
+                safeClass('status', 'status');
+                safeStyle('status', 'color', 'var(--amber)');
+                S.myIP = await getMyIP();
+                try {
+                    const bal = await bitkub('/api/v3/market/balances', {}, true);
+                    try {
+                        const info = await bitkub('/api/v3/market/symbols', {}, false, true);
+                        info.result.forEach(x => {
+                            const coin = x.symbol.split('_')[0];
+                            S.minAmt[coin] = x.min_amount;
+                        });
+                        log('INFO', 0, 0, 'อัพเดท Min Amount สำเร็จ');
+                    } catch (e) { }
+                    S.connected = true;
+                    S.mode = 'LIVE';
+                    const st = CS();
+                    st.cash = bal.result.THB.available;
+                    st.initEquity = st.cash;
+                    $('apiOverlay').classList.remove('show');
+                    if (S.mode === 'SIM') {
+                        safe('status', 'SIMULATE MODE - เชื่อมต่อแล้ว');
+                        safeClass('status', 'status demo');
+                    }
+                    log('SUCCESS', 0, 0, 'เชื่อม API สำเร็จ ระบบพร้อมใช้งาน!!');
+                    safe('status', `LIVE CONNECTED`);
+                    safeClass('status', 'status live');
+                    const ok = await fetchLive();
+                    if (!ok) log('ERROR', 0, 0, 'ดึงราคาไม่สำเร็จ เช็ค IP Whitelist');
+                    calcCapitalReq();
+                    setTimeout(syncCash, 1500);                                                                                                                                                                                                                                                                       
+                    setTimeout(updateAllTrends, 2000); // เพิ่มบรรทัดนี้
+                    saveState();
+                } catch (e) {
+                    safe('status', 'CONNECT FAILED: ' + e.message);
+                    safeClass('status', 'status err');
+                    S.connected = false;
+                    log('ERROR', 0, 0, e.message)
+                }
+            }
+            function resetStats() {
+                const st = CS();
+                st.wins = 0;
+                st.loss = 0;
+                st.totalWin = 0;
+                st.totalLoss = 0;
+                st.initEquity = st.cash;
+                update();
+                log('INFO', 0, 0, 'รีเซ็ต Stats โหมด ' + S.mode + ' แล้ว');
+                saveState();
+            }
+
+            function switchMode(newMode) {
+                if (S.active) stop();
+                S.mode = newMode;
+                $('modeSim').classList.toggle('active', newMode === 'SIM');
+                $('modeLive').classList.toggle('active', newMode === 'LIVE');
+
+                // แก้: ถ้ายังไม่ connected ให้ overlay ค้างไว้ตลอด ไม่ว่าจะ SIM หรือ LIVE
+                if (!S.connected) {
+                    $('apiOverlay').classList.add('show');
+                } else {
+                    $('apiOverlay').classList.remove('show');
+                }
+
+                if (newMode === 'LIVE' && S.connected) fetchLive();
+
+                $('pair').textContent = newMode + '_' + $('coin').value;
+
+                if (newMode === 'LIVE') {
+                    $('status').className = 'status ' + (S.connected ? 'live' : 'err');
+                    $('status').textContent = S.connected ? 'LIVE CONNECTED' : 'LIVE MODE - ต้องเชื่อมต่อ API';
+                } else {
+                    $('status').className = 'status demo';
+                    $('status').textContent = S.connected ? 'SIMULATE MODE - CONNECTED' : 'SIMULATE MODE - ต้องเชื่อมต่อ API';
+                }
+
+                renderLogs();
+                update();
+                saveState();
+            }
+            $('btnMain').onclick = () => S.active ? stop() : start();
+            $('btnReset').onclick = resetStats;
+            $('btnHardReset').onclick = () => {
+                if (!confirm('ล้างข้อมูลทั้งหมด รวม Position ด้วย?')) return;
+                S.hold = 0;
+                S.entry = 0;
+                S.sl = 0;
+                S.tp = 0;
+                S.trades = [];
+                S.dcaCount = 0;
+                STATS.LIVE = { wins: 0, loss: 0, totalWin: 0, totalLoss: 0, logs: [], cash: 0, initEquity: 0, maxEquity: 0, maxDrawdown: 0 };
+                STATS.SIM = { wins: 0, loss: 0, totalWin: 0, totalLoss: 0, logs: [], cash: 13000, initEquity: 13000, maxEquity: 13000, maxDrawdown: 0 }; // แก้ตรงนี้
+                saveState();
+                location.reload();
+            };
+            $('btnTestIP').onclick = async () => {
+                const ip = await getMyIP();
+                log('INFO', 0, 0, 'IP ปัจจุบันคือ: ' + ip);
+                alert('IP ของคุณคือ: ' + ip + '\nเอาไปใส่ใน Bitkub IP Whitelist')
+            };
+            $('modeSim').onclick = () => switchMode('SIM');
+            $('modeLive').onclick = () => {
+                switchMode('LIVE');
+            };
+            $('btnConnect').onclick = connectLive;
+            $('rsiB').oninput = e => {
+                const val = +e.target.value;
+                $('rsiBVal').textContent = val;
+                S.rsiB = val; // อัพเดทเข้าตัวแปรจริง
+                saveState();
+            };
+            $('rsiS').oninput = e => {
+                $('rsiSVal').textContent = e.target.value;
+                S.rsiS = +e.target.value
+            };
+            $('sl').oninput = e => {
+                $('slVal').textContent = e.target.value + '%';
+                S.slP = +e.target.value;
+                if (S.hold > 0) S.sl = S.entry * (1 - S.slP / 100)
+            };
+            $('tp').oninput = e => {
+                $('tpVal').textContent = e.target.value + '%';
+                S.tpP = +e.target.value;
+                if (S.hold > 0) S.tp = S.entry * (1 + S.tpP / 100)
+            };
+            $('minPf').oninput = e => {
+                $('minPfVal').textContent = e.target.value + '%';
+                S.minProfit = +e.target.value / 100;
+            };
+            $('size').oninput = e => {
+                S.size = +e.target.value || 300;
+                calcCapitalReq(); // เพิ่มบรรทัดนี้
+            };
+            $('chkSMA').onchange = e => {
+                S.showSMA = e.target.checked;
+                $('smaLegend').style.display = S.showSMA ? 'flex' : 'none';
+                draw()
+            };
+            $('chkTSL').onchange = e => S.useTSL = e.target.checked;
+            $('dcaMode').onchange = e => {
+                S.dcaMode = e.target.value;
+                calcCapitalReq(); // เพิ่มบรรทัดนี้
+                saveState();
+                log('INFO', 0, 0, 'เปลี่ยน DCA Mode เป็น: ' + e.target.value);
+            };
+            // โชว์/ซ่อน Dropdown ตามติ๊ก DCA
+            $('chkDCA').onchange = e => {
+                S.useDCA = e.target.checked;
+                $('dcaModeRow').style.display = e.target.checked ? 'flex' : 'none';
+            };
+            $('dcaModeRow').style.display = S.useDCA ? 'flex' : 'none'; // init
+            $('dcaMode').value = S.dcaMode;
+            $('chkAuto').onchange = e => {
+                if (e.target.checked && S.mode === 'LIVE' && !S.autoTrade) {
+                    if (!confirm('⚠️ คำเตือน: เปิด Auto Trade แล้ว EA จะยิงออเดอร์เงินจริงทันทีโดยไม่ถาม\n\nคุณยอมรับความเสี่ยงทั้งหมดใช่ไหม?')) {
+                        e.target.checked = false;
+                        return;
+                    }
+                }
+                S.autoTrade = e.target.checked;
+                if (S.autoTrade) {
+                    log('INFO', 0, 0, 'เปิดโหมด Auto Trade - จะยิงออเดอร์ทันทีไม่ถาม');
+                    safe('status', 'LIVE AUTO MODE - AUTO TRADE!');
+                    safeClass('status', 'status live');
+                } else {
+                    log('INFO', 0, 0, 'ปิดโหมด Auto Trade - จะถามก่อนยิง');
+                }
+                saveState();
+            };
+            $('coin').onchange = async () => {
+                if (S.active) stop();
+                S.df = [];
+                const coin = $('coin').value;
+                const dust = S.dustMap[coin] || 0;
+                safe('pDust', dust.toFixed(8));
+                $('pair').textContent = S.mode + '_' + coin;
+
+                if (S.mode === 'SIM') {
+                    S.df = await genDemo();
+                    if (S.df.length) {
+                        const lastP = S.df[S.df.length - 1].c;
+                        safe('price', fmt(lastP));
+                        updateTitle(lastP, coin);
+                        const rsi = calcRSI(S.df.map(x => x.c));
+                        safe('rsi', rsi[rsi.length - 1].toFixed(2));
+                    }
+                }
+                if (S.mode === 'LIVE') fetchLive();
+
+                // เพิ่ม 3 บรรทัดนี้
+                if (showTrendPanel && S.mode === 'LIVE' && S.connected) {
+                    setTimeout(updateAllTrends, 500); // รอ 0.5 วิให้ราคาโหลดก่อน
+                }
+
+                draw();
+                calcCapitalReq();
+            };
+            $('btnBacktest').onclick = runBacktest;
+            document.querySelectorAll('.tf-btn').forEach(b => b.onclick = () => {
+                document.querySelectorAll('.tf-btn').forEach(x => x.classList.remove('active'));
+                b.classList.add('active');
+                S.tf = b.dataset.tf;
+                if (S.mode === 'LIVE') fetchLive();
+            });
+            $('btnRefreshTrend').onclick = () => {
+                if (S.mode === 'LIVE' && S.connected) {
+                    log('INFO', 0, 0, 'กำลังรีเฟรช Trend ทุก TF...');
+                    updateAllTrends();
+                } else {
+                    alert('ต้องอยู่ LIVE MODE และ CONNECT ก่อน');
+                }
+            };
+            // Init
+            loadState();
+            $('modeLive').click();
+            S.df = genDemo();
+            draw();
+            update();
+            renderLogs();
+            log('INFO', 0, 0, 'ยังไม่ได้เชื่อมต่อ API');
+            getMyIP().then(ip => log('INFO', 0, 0, 'IP : ' + ip));
+            setInterval(() => {
+                if (!S.active && S.mode === 'LIVE' && S.connected) {
+                    fetchLive(); // ดึงราคา + อัพเดท RSI/Price/Signal ทุก 15 วิ
+                }
+            }, 15000);
+
+
+            // 1. แก้ 2 บรรทัดนี้ให้เป็นของคุณ
+            const CURRENT_VERSION = '1.0.0'; // เวอร์ชันปัจจุบัน เปลี่ยนทุกครั้งที่อัพเดท
+            const GITHUB_REPO = 'SGameDesign/spaceproplus'; // เช่น 'john/space-pro'
+            async function checkUpdate() {
+                try {
+                    const url = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    const latestVer = data.tag_name.replace('v', '');
+                    
+                    if (latestVer !== CURRENT_VERSION) {
+                        const link = data.assets[0]?.browser_download_url || data.html_url;
+                        showUpdateBox(latestVer, link, data.body);
+                    }
+                } catch (e) {
+                    console.log('เช็คอัพเดทไม่ได้:', e);
+                }
+            }
+
+            function showUpdateBox(ver, link, note) {
+                const box = document.createElement('div');
+                box.className = 'modal show';
+                box.innerHTML = `
+                    <div class="modal-ct">
+                        <div class="modal-t" style="color:var(--amber)">มีอัพเดทใหม่ v${ver}</div>
+                        <div class="modal-txt">
+                            ตอนนี้คุณใช้ v${CURRENT_VERSION}<br><br>
+                            <strong>มีอะไรใหม่:</strong><br>
+                            ${note.replace(/\n/g, '<br>') || '- แก้บัคทั่วไป'}
+                        </div>
+                        <div class="modal-btns">
+                            <button class="btn btn-reset" onclick="this.closest('.modal').remove()">ปิด</button>
+                            <button class="btn btn-live" onclick="window.open('${link}')">โหลดเลย</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(box);
+            }
+
+            checkUpdate();
+        </script>
+</body>
+
+</html>
